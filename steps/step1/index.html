@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="generator" content="mkdocs-1.6.1, mkdocs-terminal-4.7.0">
+    
+    <meta name="description" content="A simple container runtime implementation"> 
+     
+    
+    <link rel="canonical" href="https://gruejay.github.io/container-runtime/steps/step1/"><link rel="icon" type="image/png" sizes="192x192" href="../../img/android-chrome-192x192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="../../img/android-chrome-512x512.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="../../img/apple-touch-icon.png" />
+<link rel="shortcut icon" type="image/png" sizes="48x48" href="../../img/favicon.ico" />
+<link rel="icon" type="image/png" sizes="16x16" href="../../img/favicon-16x16.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="../../img/favicon-32x32.png" />
+
+
+    
+ 
+<title>Step 1: Getting Started - boxr container runner</title>
+
+
+<link href="../../css/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+<link href="../../css/fontawesome/css/solid.min.css" rel="stylesheet">
+<link href="../../css/normalize.css" rel="stylesheet">
+<link href="../../css/terminal.css" rel="stylesheet">
+<link href="../../css/theme.css" rel="stylesheet">
+<link href="../../css/theme.tile_grid.css" rel="stylesheet">
+<link href="../../css/theme.footer.css" rel="stylesheet">
+<!-- dark color palette -->
+<link href="../../css/palettes/dark.css" rel="stylesheet">
+
+<!-- page layout -->
+<style>
+/* initially set page layout to a one column grid */
+.terminal-mkdocs-main-grid {
+    display: grid;
+    grid-column-gap: 1.4em;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+}
+
+/*  
+*   when side navigation is not hidden, use a two column grid.  
+*   if the screen is too narrow, fall back to the initial one column grid layout.
+*   in this case the main content will be placed under the navigation panel. 
+*/
+@media only screen and (min-width: 70em) {
+    .terminal-mkdocs-main-grid {
+        grid-template-columns: 4fr 9fr;
+    }
+}</style>
+
+
+
+     
+    
+    
+
+    
+    <!-- search css support -->
+<link href="../../css/search/bootstrap-modal.css" rel="stylesheet">
+<!-- search scripts -->
+<script>
+    var base_url = "../..",
+    shortcuts = "{}";
+</script>
+<script src="../../js/jquery/jquery-1.10.1.min.js" defer></script>
+<script src="../../js/bootstrap/bootstrap.min.js" defer></script>
+<script src="../../js/mkdocs/base.js" defer></script>
+    
+    
+    
+    
+    <script src="../../search/main.js"></script>
+    
+
+    
+</head>
+
+<body class="terminal"><div class="container">
+    <div class="terminal-nav">
+        <header class="terminal-logo">
+            <div id="mkdocs-terminal-site-name" class="logo terminal-prompt"><a href="https://gruejay.github.io/container-runtime/" class="no-style">boxr container runner</a></div>
+        </header>
+        
+        <nav class="terminal-menu">
+            
+            <ul vocab="https://schema.org/" typeof="BreadcrumbList">
+                
+                
+                <li property="itemListElement" typeof="ListItem">
+                    <a href="../.." class="menu-item " property="item" typeof="WebPage">
+                        <span property="name">Home</span>
+                    </a>
+                    <meta property="position" content="0">
+                </li>
+                
+                
+                
+                    
+                    
+
+
+<li property="itemListElement" typeof="ListItem">
+    <a href="#" class="menu-item" data-toggle="modal" data-target="#mkdocs_search_modal" property="item" typeof="SearchAction">
+        <i aria-hidden="true" class="fa fa-search"></i> <span property="name">Search</span>
+    </a>
+    <meta property="position" content="1">
+</li>
+                    
+            </ul>
+            
+        </nav>
+    </div>
+</div>
+        
+    <div class="container">
+        <div class="terminal-mkdocs-main-grid"><aside id="terminal-mkdocs-side-panel"><nav>
+  
+    <ul class="terminal-mkdocs-side-nav-items">
+        
+          
+
+
+
+<li class="terminal-mkdocs-side-nav-li">
+    
+    
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../..">Home</a>
+        
+    
+    
+    
+  </li>
+        
+          
+
+
+
+<li class="terminal-mkdocs-side-nav-li">
+    
+    
+        
+        
+            
+            
+                
+                
+        
+
+             
+            
+    
+        
+        <a class="
+
+    terminal-mkdocs-side-nav-item--active" href="../">Steps</a>
+    
+    
+        
+      
+        
+            <ul class="terminal-mkdocs-side-nav-li-ul">
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        <span class="
+
+    terminal-mkdocs-side-nav-item--active">Step 1: Getting Started</span>
+    
+    </li>
+            
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../step2/">Step 2: Namespaces (Part 1)</a>
+        
+    
+    </li>
+            
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../step3/">Step 3: Filesystem (Part 1)</a>
+        
+    
+    </li>
+            
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../step4/">Step 4: Filesystems (Part 2)</a>
+        
+    
+    </li>
+            
+            
+    </ul>
+        
+    
+  </li>
+        
+    </ul>
+  
+</nav><hr>
+<nav>
+    <ul>
+        <li><a href="#part-1-getting-started">Part 1: Getting Started</a></li>
+        <li><a href="#executing-processes-from-go">Executing Processes from Go</a></li><li><a href="#structuring-the-project">Structuring the Project</a></li><li><a href="#adding-flags">Adding flags</a></li><li><a href="#adding-some-structure">Adding some Structure</a></li><li><a href="#appendix-turning-boxr-into-a-real-command">Appendix: Turning boxr into a real command</a></li>
+    </ul>
+</nav>
+</aside>
+            <main id="terminal-mkdocs-main-content">
+<section id="mkdocs-terminal-content">
+    <h1 id="part-1-getting-started">Part 1: Getting Started</h1>
+<h2 id="executing-processes-from-go">Executing Processes from Go</h2>
+<p>At its core, a container runtime is a way to use one process (the container manager) to launch
+another process. That's a massive oversimplification, but launching processes is as good a place
+to start as any for building <code>boxr</code>. </p>
+<p>Let's make a basic CLI for launching other commands through Go. There won't be any flash to it,
+simply using <code>os/exec</code> package to take the user's input and pass it to the OS as a new command to run.
+Using the Cobra CLI package, lets make a a command, <code>boxr</code>, and a subcommand, <code>run</code>,
+that takes in the remaining CLI args and treats them as a command and arguments to run.</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span style="color: #008000; font-weight: bold">package</span><span style="color: #BBB"> </span>main
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span style="color: #008000; font-weight: bold">import</span><span style="color: #BBB"> </span>(
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span style="color: #BBB">  </span><span style="color: #BA2121">&quot;os&quot;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span style="color: #BBB">  </span><span style="color: #BA2121">&quot;os/exec&quot;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span style="color: #BBB">  </span><span style="color: #BA2121">&quot;fmt&quot;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span style="color: #BBB">    </span><span style="color: #BA2121">&quot;github.com/spf13/cobra&quot;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>)
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span style="color: #008000; font-weight: bold">var</span><span style="color: #BBB"> </span>rootCmd<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span><span style="color: #666">&amp;</span>cobra.Command{
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span style="color: #BBB">    </span>Use:<span style="color: #BBB">   </span><span style="color: #BA2121">&quot;boxr&quot;</span>,
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span style="color: #BBB">    </span>Short:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Boxr is a simple container runtime&quot;</span>,
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span style="color: #BBB">    </span>Long:<span style="color: #BBB">  </span><span style="color: #BA2121">`A simple container runtime implementation written in Go.`</span>,
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>}
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span style="color: #008000; font-weight: bold">var</span><span style="color: #BBB"> </span>runCmd<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span><span style="color: #666">&amp;</span>cobra.Command{
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span style="color: #BBB">    </span>Use:<span style="color: #BBB">   </span><span style="color: #BA2121">&quot;run [command]&quot;</span>,
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span style="color: #BBB">    </span>Short:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Run a container&quot;</span>,
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span style="color: #BBB">    </span>Long:<span style="color: #BBB"> </span><span style="color: #BA2121">`Run a container with the specified command.</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span style="color: #BA2121">Examples:</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span style="color: #BA2121">  boxr run /bin/bash           # Run interactively</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span style="color: #BA2121">  boxr run -d sleep 1000       # Run in background</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span style="color: #BA2121">  boxr run --detach sleep 1000 # Run in background`</span>,
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span style="color: #BBB">    </span>Args:<span style="color: #BBB"> </span>cobra.MinimumNArgs(<span style="color: #666">1</span>),
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span style="color: #BBB">    </span>Run:<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">func</span>(cmd<span style="color: #BBB"> </span><span style="color: #666">*</span>cobra.Command,<span style="color: #BBB"> </span>args<span style="color: #BBB"> </span>[]<span style="color: #B00040">string</span>)<span style="color: #BBB"> </span>{
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span style="color: #BBB">    </span>command<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>exec.Command(args[<span style="color: #666">0</span>],<span style="color: #BBB"> </span>args[<span style="color: #666">1</span>:]<span style="color: #666">...</span>)
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span style="color: #BBB">    </span>command.Stdin<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>os.Stdin
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span style="color: #BBB">    </span>command.Stdout<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>os.Stdout
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span style="color: #BBB">    </span>command.Stderr<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>os.Stderr
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span style="color: #BBB">    </span>command.Run()
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span style="color: #BBB">    </span>},
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>}
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span style="color: #008000; font-weight: bold">func</span><span style="color: #BBB"> </span>init()<span style="color: #BBB"> </span>{
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span style="color: #BBB">    </span>rootCmd.AddCommand(runCmd)
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>}
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span style="color: #008000; font-weight: bold">func</span><span style="color: #BBB"> </span>main()<span style="color: #BBB"> </span>{
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span style="color: #BBB">    </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>rootCmd.Execute();<span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span style="color: #BBB">        </span>fmt.Println(err)
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span style="color: #BBB">        </span>os.Exit(<span style="color: #666">1</span>)
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span style="color: #BBB">    </span>}
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>}
+</code></pre></div>
+<p>Now execute <code>go run step1.go run -- ls</code> and you should see the contents of your directory printed out. There's no file system
+isolation yet, no process isolation, nothing like that. The <code>ls</code> that you are executing is the same <code>ls</code> binary that you could run directly,
+and it has the same privileges on your machine as you do.</p>
+<p>Play around with the command a bit-- even try launching a shell (zsh/bash/fish, whatever you like). Long running processes should give you enough
+time to poke around at the process list while the command is still being executed to see what is happening. Tools like <code>pgrep</code> and <code>ps</code> can
+be used to find the PIDs of the processes, and you can find out more by looking at <code>/proc/&lt;pid&gt;</code></p>
+<h2 id="structuring-the-project">Structuring the Project</h2>
+<p>To make our lives a little easier as the project expands, let's rename this file <code>cmd/main.go</code> and move the logic inside the <code>Run</code> field of <code>runCmd</code> struct into its own file inside <code>pkg/container/main.go</code>
+and import it into the <code>cmd/main.go</code> file.</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span style="color: #008000; font-weight: bold">package</span><span style="color: #BBB"> </span>container
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span style="color: #008000; font-weight: bold">import</span><span style="color: #BBB"> </span>(
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span style="color: #BBB">  </span><span style="color: #BA2121">&quot;os/exec&quot;</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span style="color: #BBB">  </span><span style="color: #BA2121">&quot;fmt&quot;</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>)
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span style="color: #008000; font-weight: bold">func</span><span style="color: #BBB"> </span>run(args<span style="color: #BBB"> </span>[]<span style="color: #B00040">string</span>)<span style="color: #BBB"> </span>{
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span style="color: #BBB">    </span>command<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>exec.Command(args[<span style="color: #666">0</span>],<span style="color: #BBB"> </span>args[<span style="color: #666">1</span>:]<span style="color: #666">...</span>)
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span style="color: #BBB">    </span>command.Stdin<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>os.Stdin
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span style="color: #BBB">    </span>command.Stdout<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>os.Stdout
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span style="color: #BBB">    </span>command.Stderr<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>os.Stderr
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span style="color: #BBB">    </span>command.Run()
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>}
+</code></pre></div>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span style="color: #008000; font-weight: bold">package</span><span style="color: #BBB"> </span>main
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span style="color: #008000; font-weight: bold">import</span><span style="color: #BBB"> </span>(
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span style="color: #BBB">  </span><span style="color: #BA2121">&quot;os&quot;</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span style="color: #BBB">  </span><span style="color: #BA2121">&quot;os/exec&quot;</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span style="color: #BBB">  </span><span style="color: #BA2121">&quot;fmt&quot;</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span style="color: #BBB">  </span><span style="color: #BA2121">&quot;github.com/spf13/cobra&quot;</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span style="color: #BBB">  </span><span style="color: #BA2121">&quot;github.com/gruejay3/container-runtime/pkg/container&quot;</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>)
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span style="color: #008000; font-weight: bold">var</span><span style="color: #BBB"> </span>rootCmd<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span><span style="color: #666">&amp;</span>cobra.Command{
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span style="color: #BBB">    </span>Use:<span style="color: #BBB">   </span><span style="color: #BA2121">&quot;boxr&quot;</span>,
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span style="color: #BBB">    </span>Short:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Boxr is a simple container runtime&quot;</span>,
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span style="color: #BBB">    </span>Long:<span style="color: #BBB">  </span><span style="color: #BA2121">`A simple container runtime implementation written in Go.`</span>,
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>}
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span style="color: #008000; font-weight: bold">var</span><span style="color: #BBB"> </span>runCmd<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span><span style="color: #666">&amp;</span>cobra.Command{
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span style="color: #BBB">    </span>Use:<span style="color: #BBB">   </span><span style="color: #BA2121">&quot;run [command]&quot;</span>,
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span style="color: #BBB">    </span>Short:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Run a container&quot;</span>,
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span style="color: #BBB">    </span>Long:<span style="color: #BBB"> </span><span style="color: #BA2121">`Run a container with the specified command.</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span style="color: #BA2121">Examples:</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span style="color: #BA2121">  boxr run /bin/bash           # Run interactively</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span style="color: #BA2121">  boxr run -d sleep 1000       # Run in background</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span style="color: #BA2121">  boxr run --detach sleep 1000 # Run in background`</span>,
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span style="color: #BBB">    </span>Args:<span style="color: #BBB"> </span>cobra.MinimumNArgs(<span style="color: #666">1</span>),
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span style="color: #BBB">    </span>Run:<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">func</span>(cmd<span style="color: #BBB"> </span><span style="color: #666">*</span>cobra.Command,<span style="color: #BBB"> </span>args<span style="color: #BBB"> </span>[]<span style="color: #B00040">string</span>)<span style="color: #BBB"> </span>{
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a><span style="color: #BBB">    </span>container.Run(args)
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span style="color: #BBB">    </span>},
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>}
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span style="color: #008000; font-weight: bold">func</span><span style="color: #BBB"> </span>init()<span style="color: #BBB"> </span>{
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a><span style="color: #BBB">    </span>rootCmd.AddCommand(runCmd)
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>}
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span style="color: #008000; font-weight: bold">func</span><span style="color: #BBB"> </span>main()<span style="color: #BBB"> </span>{
+<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>
+<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a><span style="color: #BBB">    </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>rootCmd.Execute();<span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a><span style="color: #BBB">        </span>fmt.Println(err)
+<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a><span style="color: #BBB">        </span>os.Exit(<span style="color: #666">1</span>)
+<a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a><span style="color: #BBB">    </span>}
+<a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a>}
+</code></pre></div>
+<p>This gives us a good platform to add functionality to the <code>run</code> command. Namespaces, chroot, and cgroups can be applied
+to the execution of the command, and that logic can be kept separate from the CLI logic. In the future, we will split out the 
+logic even further, but the <code>container</code> package will be the "entrypoint" into running a container, meaning we can modify a lot "under the hood"
+without needing to make drastic changes to the <code>cmd/</code> directory.</p>
+<h2 id="adding-flags">Adding flags</h2>
+<p>To understand a bit more about Cobra CLI, and to add an important feature of containers, let's allow the caller to spawn
+the process in "detached" mode, meaning the <code>boxr</code> command will return but the spawned process may still be running.</p>
+<p>We can do this using a new variable <code>detached</code> that will be true if the user passes the <code>-d/--detached</code> flag.</p>
+<p><code>cmd/main.go</code>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span style="color: #008000; font-weight: bold">package</span><span style="color: #BBB"> </span>main
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span style="color: #008000; font-weight: bold">import</span><span style="color: #BBB"> </span>(
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span style="color: #BBB">    </span><span style="color: #BA2121">&quot;fmt&quot;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span style="color: #BBB">    </span><span style="color: #BA2121">&quot;os&quot;</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span style="color: #BBB">    </span><span style="color: #BA2121">&quot;github.com/gruejay/container-runtime/pkg/container&quot;</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span style="color: #BBB">    </span><span style="color: #BA2121">&quot;github.com/spf13/cobra&quot;</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>)
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span style="color: #008000; font-weight: bold">var</span><span style="color: #BBB"> </span>rootCmd<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span><span style="color: #666">&amp;</span>cobra.Command{
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span style="color: #BBB">    </span>Use:<span style="color: #BBB">   </span><span style="color: #BA2121">&quot;boxr&quot;</span>,
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span style="color: #BBB">    </span>Short:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Boxr is a simple container runtime&quot;</span>,
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span style="color: #BBB">    </span>Long:<span style="color: #BBB">  </span><span style="color: #BA2121">`A simple container runtime implementation written in Go.`</span>,
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>}
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span style="color: #008000; font-weight: bold">var</span><span style="color: #BBB"> </span>detach<span style="color: #BBB"> </span><span style="color: #B00040">bool</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span style="color: #008000; font-weight: bold">var</span><span style="color: #BBB"> </span>runCmd<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span><span style="color: #666">&amp;</span>cobra.Command{
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span style="color: #BBB">    </span>Use:<span style="color: #BBB">   </span><span style="color: #BA2121">&quot;run [command]&quot;</span>,
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span style="color: #BBB">    </span>Short:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Run a container&quot;</span>,
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span style="color: #BBB">    </span>Long:<span style="color: #BBB"> </span><span style="color: #BA2121">`Run a container with the specified command.</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span style="color: #BA2121">Examples:</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span style="color: #BA2121">  boxr run /bin/bash           # Run interactively</span>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span style="color: #BA2121">  boxr run -d sleep 1000       # Run in background</span>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span style="color: #BA2121">  boxr run --detach sleep 1000 # Run in background`</span>,
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span style="color: #BBB">    </span>Args:<span style="color: #BBB"> </span>cobra.MinimumNArgs(<span style="color: #666">1</span>),
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span style="color: #BBB">    </span>Run:<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">func</span>(cmd<span style="color: #BBB"> </span><span style="color: #666">*</span>cobra.Command,<span style="color: #BBB"> </span>args<span style="color: #BBB"> </span>[]<span style="color: #B00040">string</span>)<span style="color: #BBB"> </span>{
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a><span style="color: #BBB">        </span><span style="color: #3D7B7B; font-style: italic">// Initialize a new container with default settings</span>
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span style="color: #BBB">        </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>container.Run(args,<span style="color: #BBB"> </span>detach);<span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span style="color: #BBB">            </span>fmt.Printf(<span style="color: #BA2121">&quot;Error running container: %v\n&quot;</span>,<span style="color: #BBB"> </span>err)
+<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span style="color: #BBB">            </span>os.Exit(<span style="color: #666">1</span>)
+<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a><span style="color: #BBB">        </span>}
+<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span style="color: #BBB">    </span>},
+<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>}
+<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>
+<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a><span style="color: #008000; font-weight: bold">func</span><span style="color: #BBB"> </span>init()<span style="color: #BBB"> </span>{
+<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a><span style="color: #BBB">    </span>runCmd.Flags().BoolVarP(<span style="color: #666">&amp;</span>detach,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;detach&quot;</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;d&quot;</span>,<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">false</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Run container in background&quot;</span>)
+<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a><span style="color: #BBB">    </span>rootCmd.AddCommand(runCmd)
+<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a>}
+<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a>
+<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a><span style="color: #008000; font-weight: bold">func</span><span style="color: #BBB"> </span>main()<span style="color: #BBB"> </span>{
+<a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a>
+<a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a><span style="color: #BBB">    </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>rootCmd.Execute();<span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-3-45" name="__codelineno-3-45" href="#__codelineno-3-45"></a><span style="color: #BBB">        </span>fmt.Println(err)
+<a id="__codelineno-3-46" name="__codelineno-3-46" href="#__codelineno-3-46"></a><span style="color: #BBB">        </span>os.Exit(<span style="color: #666">1</span>)
+<a id="__codelineno-3-47" name="__codelineno-3-47" href="#__codelineno-3-47"></a><span style="color: #BBB">    </span>}
+<a id="__codelineno-3-48" name="__codelineno-3-48" href="#__codelineno-3-48"></a>}
+</code></pre></div></p>
+<p><code>pkg/container/container.go</code>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span style="color: #008000; font-weight: bold">package</span><span style="color: #BBB"> </span>container
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span style="color: #008000; font-weight: bold">import</span><span style="color: #BBB"> </span>(
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span style="color: #BBB">  </span><span style="color: #BA2121">&quot;os/exec&quot;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span style="color: #BBB">  </span><span style="color: #BA2121">&quot;fmt&quot;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>)
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span style="color: #008000; font-weight: bold">func</span><span style="color: #BBB"> </span>run(args<span style="color: #BBB"> </span>[]<span style="color: #B00040">string</span>,<span style="color: #BBB"> </span>detach<span style="color: #BBB"> </span><span style="color: #B00040">bool</span>)<span style="color: #BBB"> </span><span style="color: #B00040">error</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span style="color: #BBB">  </span>command<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>exec.Command(args[<span style="color: #666">0</span>],<span style="color: #BBB"> </span>args[<span style="color: #666">1</span>:]<span style="color: #666">...</span>)
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span style="color: #BBB">  </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>!detach<span style="color: #BBB"> </span>{
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span style="color: #BBB">    </span>command.Stdin<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>os.Stdin
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span style="color: #BBB">    </span>command.Stdout<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>os.Stdout
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span style="color: #BBB">    </span>command.Stderr<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>os.Stderr
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span style="color: #BBB">    </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>cmd.Run();<span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">return</span><span style="color: #BBB"> </span>fmt.Errorf(<span style="color: #BA2121">&quot;command failed with %v&quot;</span>,<span style="color: #BBB"> </span>err)
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span style="color: #BBB">    </span>}
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span style="color: #BBB">  </span>}<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">else</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span style="color: #BBB">    </span>command.Start()
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span style="color: #BBB">    </span>pid<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>cmd.Process.Pid
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span style="color: #BBB">    </span>fmt.Printf(<span style="color: #BA2121">&quot;Spawned process: %d&quot;</span>,<span style="color: #BBB"> </span>pid)
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span style="color: #BBB">    </span><span style="color: #008000; font-weight: bold">return</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span style="color: #BBB">  </span>}
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span style="color: #BBB">  </span><span style="color: #008000; font-weight: bold">return</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>}
+</code></pre></div></p>
+<p>Now try running <code>go run cmd/main.go run -d -- sleep 100</code>, then afterwards <code>pgrep sleep</code> and you should get a PID matching the 
+PID printed by <code>go run</code>. </p>
+<h2 id="adding-some-structure">Adding some Structure</h2>
+<p>Running a container will require knowing a lot of information:
+- Namespace config (which namespaces to create, which to attach to)
+- FS information (which directory is the root directory?)
+- Mount information (which devices/filesystems to mount into the container, and where)
+- Command information (which command to run, with what args)
+- whether to attach <code>stdin</code><em><code>stdout</code></em><code>stderr</code>
+- And more</p>
+<p>It would be hard and messy to track all of that separately by passing arguments one-by-one. Each change we make
+to the container (adding a feature, flag, argument) would require updating the function signatures for everything.
+We can make our lives a lot easier by creating a <code>Container</code> type that will hold all of the configuration we care about.</p>
+<p>Adding the following to <code>pkg/container/container.go</code> gives us a container type that has two fields: <code>Detach</code>, to tell us 
+whether to attach to the running process, and <code>Args</code> to hold the info the user passed in about what to execute. Now, instead
+of <code>container.Run()</code> being a standalone function, it will be a Method on the <code>Container</code> type. We will need to rewrite the logic
+of the function to use the new container type, and rewrite <code>cmd/main.go</code> to use it, as well.</p>
+<p>In addition to adding the type declaration, let's add a function <code>NewContainer()</code> that returns a pointer
+to an instance of <code>Container</code> with some defaults. Those can, of course, be overridden, but it will be nice in the near
+future when we start adding namespace configuration, but don't yet have config files.</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span style="color: #008000; font-weight: bold">type</span><span style="color: #BBB"> </span>Container<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">struct</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span style="color: #BBB">    </span>Detach<span style="color: #BBB">     </span><span style="color: #B00040">bool</span><span style="color: #BBB">            </span><span style="color: #BA2121">`json:&quot;detach&quot;`</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span style="color: #BBB">    </span>Args<span style="color: #BBB">       </span>[]<span style="color: #B00040">string</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>}
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span style="color: #008000; font-weight: bold">func</span><span style="color: #BBB"> </span>NewContainer()<span style="color: #BBB"> </span><span style="color: #666">*</span>Container<span style="color: #BBB"> </span>{
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span style="color: #BBB">  </span><span style="color: #008000; font-weight: bold">return</span><span style="color: #BBB"> </span><span style="color: #666">&amp;</span>Container{
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span style="color: #BBB">    </span>Detach:<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">false</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span style="color: #BBB">  </span>}
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>}
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span style="color: #008000; font-weight: bold">func</span><span style="color: #BBB"> </span>(<span style="color: #666">*</span>Container)<span style="color: #BBB"> </span>Run()<span style="color: #BBB"> </span>{
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span style="color: #BBB">    </span>cmd<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>exec.Command(c.Args[<span style="color: #666">0</span>],<span style="color: #BBB"> </span>c.Args[<span style="color: #666">1</span>:]<span style="color: #666">...</span>)
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span style="color: #BBB">    </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>!c.Detach<span style="color: #BBB"> </span>{
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span style="color: #BBB">        </span>cmd.Stdin<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>os.Stdin
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span style="color: #BBB">        </span>cmd.Stdout<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>os.Stdout
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span style="color: #BBB">        </span>cmd.Stderr<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>os.Stderr
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span style="color: #BBB">        </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>cmd.Run();<span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span style="color: #BBB">            </span><span style="color: #008000; font-weight: bold">return</span><span style="color: #BBB"> </span>fmt.Errorf(<span style="color: #BA2121">&quot;command failed with %v&quot;</span>,<span style="color: #BBB"> </span>err)
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span style="color: #BBB">        </span>}
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span style="color: #BBB">        </span>slog.Info(<span style="color: #BA2121">&quot;started container process&quot;</span>,
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span style="color: #BBB">            </span><span style="color: #BA2121">&quot;command&quot;</span>,<span style="color: #BBB"> </span>c.Args[<span style="color: #666">0</span>],
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span style="color: #BBB">            </span><span style="color: #BA2121">&quot;args&quot;</span>,<span style="color: #BBB"> </span>c.Args[<span style="color: #666">1</span>:],
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span style="color: #BBB">        </span>)
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span style="color: #BBB">    </span>}<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">else</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span style="color: #BBB">        </span>cmd.Start()
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span style="color: #BBB">        </span>pid<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>cmd.Process.Pid
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span style="color: #BBB">        </span>slog.Info(<span style="color: #BA2121">&quot;started detached container process&quot;</span>,
+<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a><span style="color: #BBB">            </span><span style="color: #BA2121">&quot;command&quot;</span>,<span style="color: #BBB"> </span>c.Args[<span style="color: #666">0</span>],
+<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a><span style="color: #BBB">            </span><span style="color: #BA2121">&quot;args&quot;</span>,<span style="color: #BBB"> </span>c.Args[<span style="color: #666">1</span>:],
+<a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a><span style="color: #BBB">            </span><span style="color: #BA2121">&quot;pid&quot;</span>,<span style="color: #BBB"> </span>pid,
+<a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a><span style="color: #BBB">        </span>)
+<a id="__codelineno-5-34" name="__codelineno-5-34" href="#__codelineno-5-34"></a><span style="color: #BBB">    </span>}
+<a id="__codelineno-5-35" name="__codelineno-5-35" href="#__codelineno-5-35"></a><span style="color: #BBB">    </span><span style="color: #008000; font-weight: bold">return</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span>
+<a id="__codelineno-5-36" name="__codelineno-5-36" href="#__codelineno-5-36"></a>
+<a id="__codelineno-5-37" name="__codelineno-5-37" href="#__codelineno-5-37"></a>}
+</code></pre></div>
+<p><code>cmd/main.go</code> (snippet)
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span style="color: #008000; font-weight: bold">var</span><span style="color: #BBB"> </span>runCmd<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span><span style="color: #666">&amp;</span>cobra.Command{
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span style="color: #BBB">    </span>Use:<span style="color: #BBB">   </span><span style="color: #BA2121">&quot;run [command]&quot;</span>,
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span style="color: #BBB">    </span>Short:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Run a container&quot;</span>,
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span style="color: #BBB">    </span>Long:<span style="color: #BBB"> </span><span style="color: #BA2121">`Run a container with the specified command.</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span style="color: #BA2121">Examples:</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span style="color: #BA2121">  boxr run /bin/bash           # Run interactively</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span style="color: #BA2121">  boxr run -d sleep 1000       # Run in background</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span style="color: #BA2121">  boxr run --detach sleep 1000 # Run in background`</span>,
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span style="color: #BBB">    </span>Args:<span style="color: #BBB"> </span>cobra.MinimumNArgs(<span style="color: #666">1</span>),
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span style="color: #BBB">    </span>Run:<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">func</span>(cmd<span style="color: #BBB"> </span><span style="color: #666">*</span>cobra.Command,<span style="color: #BBB"> </span>args<span style="color: #BBB"> </span>[]<span style="color: #B00040">string</span>)<span style="color: #BBB"> </span>{
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span style="color: #BBB">        </span><span style="color: #3D7B7B; font-style: italic">// Initialize a new container with default settings</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span style="color: #BBB">        </span>c<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>container.NewContainer()
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span style="color: #BBB">        </span><span style="color: #3D7B7B; font-style: italic">// Set the command and arguments</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span style="color: #BBB">        </span>c.Args<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>args
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span style="color: #BBB">        </span><span style="color: #3D7B7B; font-style: italic">// Set detach mode from flag</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span style="color: #BBB">        </span>c.Detach<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>detach
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span style="color: #BBB">        </span><span style="color: #3D7B7B; font-style: italic">// Run the container</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span style="color: #BBB">        </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>c.Run();<span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span style="color: #BBB">            </span>fmt.Printf(<span style="color: #BA2121">&quot;Error running container: %v\n&quot;</span>,<span style="color: #BBB"> </span>err)
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a><span style="color: #BBB">            </span>os.Exit(<span style="color: #666">1</span>)
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a><span style="color: #BBB">        </span>}
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a><span style="color: #BBB">    </span>},
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>}
+</code></pre></div></p>
+<p>Now, when <code>boxr run</code> is called, first a new instance of <code>Container</code> is created, and the user's desired command
+and detach behavior are set in the Container's fields. Then the <code>Run</code> method is called, which behaves pretty
+much the same as before, except gets the necessary info from the <code>Container</code> instance its called on, instead
+of via arguments. If we wanted to add, say, namespace changes, we could add that to the <code>Container</code> type and not
+have to change the method signature. Let's do that in part 3!</p>
+<h2 id="appendix-turning-boxr-into-a-real-command">Appendix: Turning <code>boxr</code> into a real command</h2>
+<p>If you've used Go before, you know how to compile into an executable. But in case you don't:</p>
+<p><code>go build -o boxr cmd/main.go &amp;&amp; chmod +x ./boxr</code> will give you a binary executable, <code>./boxr</code>, that you can now use. <code>./boxr run -- ls</code> or
+<code>./boxr run -d -- sleep 100</code></p>
+</section>
+
+            </main>
+        </div>
+        <hr><footer>
+    <div class="terminal-mkdocs-footer-grid">
+        <div id="terminal-mkdocs-footer-copyright-info">
+             Site built with <a href="http://www.mkdocs.org">MkDocs</a> and <a href="https://github.com/ntno/mkdocs-terminal">Terminal for MkDocs</a>.
+        </div>
+        <div id="terminal-mkdocs-footer-prev-next">
+            <nav class="btn-group">
+                <a href="../" title="Index">Previous</a>
+                |
+                <a href="../step2/" title="Step 2: Namespaces (Part 1)">Next</a>
+            </nav>
+        </div>
+    </div>
+</footer>
+    </div>
+
+    
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="alertdialog" aria-modal="true" aria-labelledby="searchModalLabel">
+    <div class="modal-dialog modal-lg" role="search">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchModalLabel">Search</h5>
+                <button type="button" class="close btn btn-default btn-ghost" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p id="searchInputLabel">Type to start searching</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" aria-labelledby="searchInputLabel" placeholder="" id="mkdocs-search-query" title="Please enter search terms here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No document matches found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    
+    
+</body>
+
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="generator" content="mkdocs-1.6.1, mkdocs-terminal-4.7.0">
+    
+    <meta name="description" content="A simple container runtime implementation"> 
+     
+    
+    <link rel="canonical" href="https://gruejay.github.io/container-runtime/steps/step4/"><link rel="icon" type="image/png" sizes="192x192" href="../../img/android-chrome-192x192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="../../img/android-chrome-512x512.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="../../img/apple-touch-icon.png" />
+<link rel="shortcut icon" type="image/png" sizes="48x48" href="../../img/favicon.ico" />
+<link rel="icon" type="image/png" sizes="16x16" href="../../img/favicon-16x16.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="../../img/favicon-32x32.png" />
+
+
+    
+ 
+<title>Step 4: Filesystems (Part 2) - boxr container runner</title>
+
+
+<link href="../../css/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+<link href="../../css/fontawesome/css/solid.min.css" rel="stylesheet">
+<link href="../../css/normalize.css" rel="stylesheet">
+<link href="../../css/terminal.css" rel="stylesheet">
+<link href="../../css/theme.css" rel="stylesheet">
+<link href="../../css/theme.tile_grid.css" rel="stylesheet">
+<link href="../../css/theme.footer.css" rel="stylesheet">
+<!-- dark color palette -->
+<link href="../../css/palettes/dark.css" rel="stylesheet">
+
+<!-- page layout -->
+<style>
+/* initially set page layout to a one column grid */
+.terminal-mkdocs-main-grid {
+    display: grid;
+    grid-column-gap: 1.4em;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+}
+
+/*  
+*   when side navigation is not hidden, use a two column grid.  
+*   if the screen is too narrow, fall back to the initial one column grid layout.
+*   in this case the main content will be placed under the navigation panel. 
+*/
+@media only screen and (min-width: 70em) {
+    .terminal-mkdocs-main-grid {
+        grid-template-columns: 4fr 9fr;
+    }
+}</style>
+
+
+
+     
+    
+    
+
+    
+    <!-- search css support -->
+<link href="../../css/search/bootstrap-modal.css" rel="stylesheet">
+<!-- search scripts -->
+<script>
+    var base_url = "../..",
+    shortcuts = "{}";
+</script>
+<script src="../../js/jquery/jquery-1.10.1.min.js" defer></script>
+<script src="../../js/bootstrap/bootstrap.min.js" defer></script>
+<script src="../../js/mkdocs/base.js" defer></script>
+    
+    
+    
+    
+    <script src="../../search/main.js"></script>
+    
+
+    
+</head>
+
+<body class="terminal"><div class="container">
+    <div class="terminal-nav">
+        <header class="terminal-logo">
+            <div id="mkdocs-terminal-site-name" class="logo terminal-prompt"><a href="https://gruejay.github.io/container-runtime/" class="no-style">boxr container runner</a></div>
+        </header>
+        
+        <nav class="terminal-menu">
+            
+            <ul vocab="https://schema.org/" typeof="BreadcrumbList">
+                
+                
+                <li property="itemListElement" typeof="ListItem">
+                    <a href="../.." class="menu-item " property="item" typeof="WebPage">
+                        <span property="name">Home</span>
+                    </a>
+                    <meta property="position" content="0">
+                </li>
+                
+                
+                
+                    
+                    
+
+
+<li property="itemListElement" typeof="ListItem">
+    <a href="#" class="menu-item" data-toggle="modal" data-target="#mkdocs_search_modal" property="item" typeof="SearchAction">
+        <i aria-hidden="true" class="fa fa-search"></i> <span property="name">Search</span>
+    </a>
+    <meta property="position" content="1">
+</li>
+                    
+            </ul>
+            
+        </nav>
+    </div>
+</div>
+        
+    <div class="container">
+        <div class="terminal-mkdocs-main-grid"><aside id="terminal-mkdocs-side-panel"><nav>
+  
+    <ul class="terminal-mkdocs-side-nav-items">
+        
+          
+
+
+
+<li class="terminal-mkdocs-side-nav-li">
+    
+    
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../..">Home</a>
+        
+    
+    
+    
+  </li>
+        
+          
+
+
+
+<li class="terminal-mkdocs-side-nav-li">
+    
+    
+        
+        
+            
+            
+                
+                
+        
+
+             
+            
+    
+        
+        <a class="
+
+    terminal-mkdocs-side-nav-item--active" href="../">Steps</a>
+    
+    
+        
+      
+        
+            <ul class="terminal-mkdocs-side-nav-li-ul">
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../step1/">Step 1: Getting Started</a>
+        
+    
+    </li>
+            
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../step2/">Step 2: Namespaces (Part 1)</a>
+        
+    
+    </li>
+            
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../step3/">Step 3: Filesystem (Part 1)</a>
+        
+    
+    </li>
+            
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        <span class="
+
+    terminal-mkdocs-side-nav-item--active">Step 4: Filesystems (Part 2)</span>
+    
+    </li>
+            
+            
+    </ul>
+        
+    
+  </li>
+        
+    </ul>
+  
+</nav><hr>
+<nav>
+    <ul>
+        <li><a href="#step-4-filesystems-part-2">Step 4: Filesystems Part 2</a></li>
+        <li><a href="#overview-of-some-filesystems">Overview of Some Filesystems</a></li><li><a href="#whats-the-upshot">What's the upshot?</a></li><li><a href="#creating-a-new-mount-inside-the-container">Creating a new mount inside the container</a></li><li><a href="#go-routines-runtimes-and-namespaces">Go routines, runtimes, and namespaces</a></li><li><a href="#rewriting-for-re-exec">Rewriting for Re-exec</a></li><li><a href="#conclusion">Conclusion</a></li>
+    </ul>
+</nav>
+</aside>
+            <main id="terminal-mkdocs-main-content">
+<section id="mkdocs-terminal-content">
+    <h1 id="step-4-filesystems-part-2">Step 4: Filesystems Part 2</h1>
+<p>In the last part, we saw how we could run programs inside of our chroot environment. In
+principle, that is all you need. You could build a container from "scratch" and load in
+only the binaries, libraries, and data you need (or statically compile your binary, so
+it doesn't require any dynamic libraries). But many workloads want or need more: they want
+an entire OS without the full kernel or init system. We'll see how to make usable copies
+of common linux distros later, but in this section we'll looks at how we get access to some
+of the nice file systems that linux uses, like <code>/proc</code>, <code>/dev</code>, and <code>/sys</code>.</p>
+<h2 id="overview-of-some-filesystems">Overview of Some Filesystems</h2>
+<h3 id="proc"><code>/proc</code></h3>
+<p>Information in this section is largely taken from the <a href="https://docs.kernel.org/filesystems/proc.html">kernel docs</a>
+as well as my own poking around in the system. Like the docs say, this is incomplete and potentially less-than-
+completely accurate, so do your own research etc. This will just be enough for us to do what we need, not a full
+course on the kernel.</p>
+<p>The <code>/proc</code> file system contains information about the running processes on the computer and access to change
+certain things, like kernel parameters and process configuration.</p>
+<p>Each process on the computer gets a subdirectory under <code>/proc</code> named by its PID. It also includes a special entry
+<code>/proc/self</code> for the process that is reading the file system at that moment. <a href="https://docs.kernel.org/filesystems/proc.html#id9">Table 1-1</a>
+of the docs shows all of the files/directories that will be present inside any <code>/proc/&lt;pid&gt;</code> directory. As
+you can see, there's a lot of stuff you can learn about the processes from this. The program that is running
+is symlinked at <code>exe</code>, the commandline arguments are stored in <code>cmdline</code>, the environment variables that
+the process has access to are in <code>environ</code>, etc.</p>
+<p>The other directories in <code>/proc</code> are kernel data and configurations, such as <code>bootconfig</code> for boot parameters,
+<code>cpuinfo</code>, <code>mounts</code>, etc. <a href="https://docs.kernel.org/filesystems/proc.html#id13">Table 1-5</a> has the full list.
+<code>/proc/net</code> has data on networking devices and <code>/proc/stat</code> has many other stats from the kernel. <code>/proc/sys</code>
+allows the user to modify kernel parameters on a live system, document more in <a href="https://docs.kernel.org/filesystems/proc.html#chapter-2-modifying-system-parameters">section 2</a>
+of the kernel docs.</p>
+<h3 id="sys"><code>/sys</code></h3>
+<p>Similar to <code>/proc</code>, <code>/sys</code> is a file system used to expose kernel data to user space. The
+<a href="https://docs.kernel.org/filesystems/sysfs.html">kernel docs</a> explain all of the details,
+but the main question I wanted answered was, "How are <code>/sys</code> and <code>/proc/sys</code> different?".
+From my research (Kagi search) and reading a few stackoverflow posts, the difference is larger
+that <code>/proc/sys</code> has legacy system controls and tunables, while all newer drivers and systems
+should expose their functionality via sysfs (<a href="https://unix.stackexchange.com/questions/4884/what-is-the-difference-between-procfs-and-sysfs">ref</a>.
+sysfs has better structure and more rigorous use of the <code>kobject</code> struct for mapping kernel information 
+to human-usable forms.</p>
+<h3 id="dev"><code>/dev</code></h3>
+<p>Calling this <code>/dev</code> is a bit misleading. There isn't a single <code>devfs</code> implementation like there
+is for <code>sysfs</code> or <code>procfs</code>. However, there are several special devices within <code>/dev</code> that are common,
+and some containers will create them.</p>
+<ul>
+<li><code>/dev/shm</code> is a tmpfs shared memory file system, used for interprocess communication via <code>shm_open()</code></li>
+<li><code>/dev/mqueue</code> is similarly meant for interprocess communication, but is a queue</li>
+<li><code>/dev/pts</code> is for psuedoterminal slaves, used to implement terminal emulators or remote login via SSH.</li>
+</ul>
+<h2 id="whats-the-upshot">What's the upshot?</h2>
+<p>As we found in Part 2, even with our own PID namespace, we didn't get our own procfs. In this section, we will
+mount our own procfs and see that we do in fact see only the container processes when running <code>ps</code>. Since
+we still don't have a full set of system files, etc. in our container, we won't bother with pts or sys yet.</p>
+<h2 id="creating-a-new-mount-inside-the-container">Creating a new mount inside the container</h2>
+<p>We haven't tested our <code>ps axjf</code> command since we did the <code>chroot</code>, so let's see what we have now in our
+copy of busybox:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span style="color: #BBB"> </span>sudo<span style="color: #BBB"> </span>./boxr<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span>-r<span style="color: #BBB"> </span>rootfs<span style="color: #BBB"> </span>--<span style="color: #BBB"> </span>ps
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>PID<span style="color: #BBB">   </span>USER<span style="color: #BBB">     </span>TIME<span style="color: #BBB">  </span>COMMAND
+</code></pre></div>
+<p>Just an empty table. That makes sense, looking at <code>rootfs/proc</code>, its an empty directory! Let's mount a new procfs
+inside the container manually.</p>
+<p><div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$<span style="color: #BBB"> </span>sudo<span style="color: #BBB"> </span>./boxr<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span>-r<span style="color: #BBB"> </span>rootfs<span style="color: #BBB"> </span>--<span style="color: #BBB"> </span>/bin/sh
+</code></pre></div>
+Now inside the container:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>/<span style="color: #BBB"> </span>$<span style="color: #BBB"> </span>mount<span style="color: #BBB"> </span>-t<span style="color: #BBB"> </span>proc<span style="color: #BBB"> </span>proc<span style="color: #BBB"> </span>/proc
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>/<span style="color: #BBB"> </span>$<span style="color: #BBB"> </span>ps<span style="color: #BBB"> </span>axjf
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span style="color: #BBB">    </span>PID<span style="color: #BBB">   </span>USER<span style="color: #BBB">     </span>TIME<span style="color: #BBB">  </span>COMMAND
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span style="color: #BBB">    </span><span style="color: #666">1</span><span style="color: #BBB"> </span>root<span style="color: #BBB">      </span><span style="color: #666">0</span>:00<span style="color: #BBB"> </span>/bin/sh
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span style="color: #BBB">    </span><span style="color: #666">3</span><span style="color: #BBB"> </span>root<span style="color: #BBB">      </span><span style="color: #666">0</span>:00<span style="color: #BBB"> </span>ps<span style="color: #BBB"> </span>axjf
+</code></pre></div>
+<p>Success! Now, we haven't added a mount namespace yet, so we should expect that outside of the container,
+we can still see the mount. Verify this by running <code>mount</code>, you should see something like:
+<code>proc on &lt;path/to/your/workingdir&gt;/rootfs/proc type proc (rw,relatime)</code>. Unmount it with <code>sudo umount rootfs/proc</code></p>
+<p>To isolate mounts inside the container from the host, we should create the container with a new mount namespace. This is
+easy for us with our <code>NamespaceConfig</code> type, set the <code>mount</code> field to <code>true</code>, which will set the clone flag
+<code>CLONE_NEWNS</code>, which corresponds to mount namespaces.</p>
+<p>Let's test this change by recompiling our code and redoing the previous steps. You will find that the mount is still viewable
+from outside. But you can verify you are getting a new mount namespace by looking at <code>/proc/&lt;pid&gt;/ns/mnt</code> for the shell and
+for the <code>boxr</code> command that launched the shell. Further, if we do the same test with <code>runc</code>, it also creates a new mount on 
+<code>/proc</code>, but you can't see it from outside. Here we encounter one of the first major hurdles for containers: sometimes
+we need to do setup for namespaces and mounts before we launch the target process. That requires entering the namespaces we
+need to create (or join, if we are launching a container into an existing namespace). And that's not so simple with Go.</p>
+<h2 id="go-routines-runtimes-and-namespaces">Go routines, runtimes, and namespaces</h2>
+<h3 id="the-problems">The problem(s)</h3>
+<p>A classic problem with using Go for containers is executing system calls from Go has to be done very carefully.
+If you <code>unshare(2)</code> into a new namespace (or enter an existing namespace with <code>setns(2)</code>, that only applies to 
+the thread that the unshare happened to be executed on, but Go can spawn and shift work onto/off of threads at 
+random to satisfy the scheduler. That means work on other threads could suddenly start executing on your unshare'd
+thread, and the code you thought would execute inside the namespace may suddenly move outside of it. Go's runtime 
+package provides the <code>LockOSThread</code> function (<a href="https://pkg.go.dev/runtime#LockOSThread">ref</a>), which includes the 
+warning "A goroutine should call LockOSThread before calling OS services or non-Go library functions that depend on
+per-thread state."</p>
+<p>Unfortunately, even locking the os thread isn't a guarantee. In older versions of Go (&lt;1.10), locked threads
+could still be cloned, and the clones would inherit the parent namespace. So now work that was expected to be
+in one namespace is now running in another. Weaveworks, a cloud-native gitops company, posted
+a <a href="https://web.archive.org/web/20240121103505/https://www.weave.works/blog/linux-namespaces-and-go-don-t-mix">great blog</a>
+in 2017 that reveals the problem. Even though that's now been fixed, and locked threads can't spawn new clones,
+we don't want to be forced to limit our entire program to a single thread, and if we need to enter existing namespaces
+with <code>setns(2)</code>, we need multiple calls, which could (if we are unlucky) end up on separate threads.</p>
+<p>There is another <a href="https://groups.google.com/g/golang-dev/c/6G4rq0DCKfo">interesting discussion</a> in the Go-dev google group
+(again, pre-1.10 release) on the problems with <code>setns(2)</code> in Go. It touches on some of the issues with multithreading and
+syscalls, especially namespaces and fork/exec, some of which we don't avoid even after Go 1.10.</p>
+<h3 id="the-solutions">The solutions</h3>
+<p>There are two common solutions to this:
+1. Use a C program (or other single-threaded langauge) to set up and enter namespaces then launch Go.
+2. Use a "re-exec" pattern to have the Go program re-launch itself inside of the new namespaces.</p>
+<p><code>runc</code> uses option 1, where they actually compile C into their Go using CGo (see <a href="https://github.com/opencontainers/runc/tree/main/libcontainer/nsenter">nsenter</a>).
+A far less portable solution would be using a bash script or C program to set everything up, then execute the compiled Go from there. 
+This isn't great because the "single binary" becomes a binary plus a wrapper. </p>
+<p><code>moby</code>, the engine behind Docker, uses <a href="https://github.com/moby/sys/blob/main/reexec/reexec.go">reexec.</a> for the operations
+it needs to do within other namespaces (it offloads container management itself to <code>runc</code>, but still needs to frequently
+interact with containers.</p>
+<p>CGo is fairly complicated to do well, especially given that I lack thorough C experience. So we will use reexec. Time for a rewrite...</p>
+<h2 id="rewriting-for-re-exec">Rewriting for Re-exec</h2>
+<p>The idea behind re-exec is that on the first run of the program (by the user or some higher level of abstraction), a special flag
+or env var is not set. This tells the program to enter the re-exec path. The re-exec path does some stuff then calls itself again
+with the same args that the user passed, except this time it adds the special falg/env var to tell the program to skip re-exec.</p>
+<p>In the re-exec code, we will read the namespace config and create the new namespaces using clone flags, very similarly to how we used
+to, but this time the command to run in the new process is <code>boxr</code> itself, not the user's command. What we end up with is a copy of
+<code>boxr</code> running in its own namespaces with the same parameters/config as the user originally called. This avoids all of the Go threading
+issues, since we no longer have to <code>unshare</code> or create new namespaces after we've been re-executed, we just continue on with setting
+up mounts, networks, and launching the user's command. I won't replicate the code for rexec in the notes, but I'll highlight a few key
+parts (you can browse tag <code>step4-rewrite</code> to see a snapshot of the code post-rewrite).</p>
+<p>We use the env var <code>_CONTAINER_INIT</code> to indicate whether we are on the first or second run of the program. SO the function executed by 
+<code>boxr run</code> now looks something like:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span style="color: #008000; font-weight: bold">func</span>(cmd<span style="color: #BBB"> </span><span style="color: #666">*</span>cobra.Command,<span style="color: #BBB"> </span>args<span style="color: #BBB"> </span>[]<span style="color: #B00040">string</span>)<span style="color: #BBB"> </span>{
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span style="color: #BBB">    </span><span style="color: #3D7B7B; font-style: italic">// initialize contain using `NewContainer` as before</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span style="color: #BBB">    </span>c<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>container.NewContainer()
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span style="color: #BBB">    </span><span style="color: #3D7B7B; font-style: italic">// Set the command and arguments</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span style="color: #BBB">    </span>c.Command<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>args[<span style="color: #666">0</span>]
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span style="color: #BBB">    </span>c.Args<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>args[<span style="color: #666">1</span>:]
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span style="color: #BBB">    </span>c.Root<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>root
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span style="color: #BBB">    </span><span style="color: #3D7B7B; font-style: italic">// Set detach mode from flag</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span style="color: #BBB">    </span>c.Detach<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>detach
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span style="color: #BBB">    </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>os.Getenv(<span style="color: #BA2121">&quot;_CONTAINER_INIT&quot;</span>)<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #BA2121">&quot;1&quot;</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span style="color: #BBB">        </span><span style="color: #3D7B7B; font-style: italic">// Pass the container and the cobra command</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span style="color: #BBB">        </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>reexec.Reexec(c,<span style="color: #BBB"> </span>cmd)
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span style="color: #BBB">        </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span style="color: #BBB">            </span>os.Exit(<span style="color: #666">1</span>)
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span style="color: #BBB">        </span>}
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span style="color: #BBB">        </span>os.Exit(<span style="color: #666">0</span>)<span style="color: #BBB"> </span><span style="color: #3D7B7B; font-style: italic">// Reexec only re-runs the program and then should exit</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span style="color: #BBB">    </span>}
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span style="color: #BBB">    </span><span style="color: #3D7B7B; font-style: italic">// Only accessible after being re-execed and setting the env var</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span style="color: #BBB">    </span><span style="color: #3D7B7B; font-style: italic">// Run the container</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span style="color: #BBB">    </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>c.Run();<span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span style="color: #BBB">        </span>fmt.Printf(<span style="color: #BA2121">&quot;Error running container: %v\n&quot;</span>,<span style="color: #BBB"> </span>err)
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span style="color: #BBB">        </span>os.Exit(<span style="color: #666">1</span>)
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span style="color: #BBB">    </span>}
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>}
+</code></pre></div>
+<p>Coming back to our mount issues in particular, after we re-exec we can modify the mount paramters on <code>/</code> to set it to recursive 
+private mounts, preventing the sharing issues we saw before. And since we are in our own mount namespace we won't affect anything
+else in the system. Then we can proceed to <code>chroot</code> into our target directory and changedir into our root filesystem.</p>
+<p>Note: I'm leaving out error handling, etc. here for brevity.</p>
+<p><code>pkg/container/container.go</code>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span style="color: #008000; font-weight: bold">func</span><span style="color: #BBB"> </span>(c<span style="color: #BBB"> </span><span style="color: #666">*</span>Container)<span style="color: #BBB"> </span>Run()<span style="color: #BBB"> </span><span style="color: #B00040">error</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span style="color: #BBB">  </span><span style="color: #666">...</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span style="color: #BBB">  </span>flags<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span><span style="color: #008000">uintptr</span>(syscall.MS_PRIVATE<span style="color: #BBB"> </span><span style="color: #666">|</span><span style="color: #BBB"> </span>syscall.MS_REC)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span style="color: #BBB">  </span>syscall.Mount(<span style="color: #BA2121">&quot;none&quot;</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;/&quot;</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;&quot;</span>,<span style="color: #BBB"> </span>flags,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;&quot;</span>)
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span style="color: #BBB">  </span>syscall.Chroot(c.Root)
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span style="color: #BBB">  </span>os.Chdir(<span style="color: #BA2121">&quot;/&quot;</span>)
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span style="color: #BBB">  </span>syscall.Mount(<span style="color: #BA2121">&quot;proc&quot;</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;/proc&quot;</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;proc&quot;</span>,<span style="color: #BBB"> </span><span style="color: #666">0x0</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;&quot;</span>)
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span style="color: #BBB">  </span><span style="color: #666">...</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>}
+</code></pre></div></p>
+<blockquote>
+<p>Note: Our namespace info logging function, <code>LogNamespaceInfo</code>, must be called after mounting the new procfs 
+so that it has access to the proc info for the correct process. It will be PID 1, which prior to chroot and mounting
+a new procfs is the host's init process, not the container process.</p>
+</blockquote>
+<p>Let's test:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$<span style="color: #BBB"> </span>sudo<span style="color: #BBB"> </span>./boxr<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span>-p
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>/<span style="color: #BBB"> </span>$<span style="color: #BBB"> </span>
+</code></pre></div>
+<p>Successfully got into the container, and while its running, checking <code>mount</code> on the host shows no signs of the mounts existing.</p>
+<h3 id="some-caveats">Some caveats</h3>
+<p>In the current implementation, detached mode no longer works. If we attempt it, we see the <code>cmd.Start()</code> returns an error
+as its unable to open <code>/dev/null</code>, which is the default location <code>exec.Command</code> uses for stdin, stdout, and stderr. That makes
+sense, as we haven't created that device in our container. We'll get to that later.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>In this step, we highlighted a few special filesystems we will need to implement to make our container run smoothly. We identified
+that the procfs was needed to help show us that we were in fact running in a new namespaces, since it would allow us to see the 
+proc info for the process. </p>
+<p>In order to solve this, we had to learn about mount namespaces, shared vs private mounts, and most importabtly, how we could
+do namespace configuration <em>before</em> we exec'ed the user's desired process. This "reexec" pattern led to a significant rewrite.</p>
+<p>Coming up next, we will keep working on filesystem bits, including fixing the missing <code>/dev/null</code> and adding the other tmpfs and
+sysfs filesystems we discussed.</p>
+</section>
+
+            </main>
+        </div>
+        <hr><footer>
+    <div class="terminal-mkdocs-footer-grid">
+        <div id="terminal-mkdocs-footer-copyright-info">
+             Site built with <a href="http://www.mkdocs.org">MkDocs</a> and <a href="https://github.com/ntno/mkdocs-terminal">Terminal for MkDocs</a>.
+        </div>
+        <div id="terminal-mkdocs-footer-prev-next">
+            <nav class="btn-group">
+                <a href="../step3/" title="Step 3: Filesystem (Part 1)">Previous</a>
+                
+            </nav>
+        </div>
+    </div>
+</footer>
+    </div>
+
+    
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="alertdialog" aria-modal="true" aria-labelledby="searchModalLabel">
+    <div class="modal-dialog modal-lg" role="search">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchModalLabel">Search</h5>
+                <button type="button" class="close btn btn-default btn-ghost" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p id="searchInputLabel">Type to start searching</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" aria-labelledby="searchInputLabel" placeholder="" id="mkdocs-search-query" title="Please enter search terms here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No document matches found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    
+    
+</body>
+
+</html>

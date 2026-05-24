@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="generator" content="mkdocs-1.6.1, mkdocs-terminal-4.7.0">
+    
+    <meta name="description" content="A simple container runtime implementation"> 
+     
+    
+    <link rel="canonical" href="https://gruejay.github.io/container-runtime/steps/step3/"><link rel="icon" type="image/png" sizes="192x192" href="../../img/android-chrome-192x192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="../../img/android-chrome-512x512.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="../../img/apple-touch-icon.png" />
+<link rel="shortcut icon" type="image/png" sizes="48x48" href="../../img/favicon.ico" />
+<link rel="icon" type="image/png" sizes="16x16" href="../../img/favicon-16x16.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="../../img/favicon-32x32.png" />
+
+
+    
+ 
+<title>Step 3: Filesystem (Part 1) - boxr container runner</title>
+
+
+<link href="../../css/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+<link href="../../css/fontawesome/css/solid.min.css" rel="stylesheet">
+<link href="../../css/normalize.css" rel="stylesheet">
+<link href="../../css/terminal.css" rel="stylesheet">
+<link href="../../css/theme.css" rel="stylesheet">
+<link href="../../css/theme.tile_grid.css" rel="stylesheet">
+<link href="../../css/theme.footer.css" rel="stylesheet">
+<!-- dark color palette -->
+<link href="../../css/palettes/dark.css" rel="stylesheet">
+
+<!-- page layout -->
+<style>
+/* initially set page layout to a one column grid */
+.terminal-mkdocs-main-grid {
+    display: grid;
+    grid-column-gap: 1.4em;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+}
+
+/*  
+*   when side navigation is not hidden, use a two column grid.  
+*   if the screen is too narrow, fall back to the initial one column grid layout.
+*   in this case the main content will be placed under the navigation panel. 
+*/
+@media only screen and (min-width: 70em) {
+    .terminal-mkdocs-main-grid {
+        grid-template-columns: 4fr 9fr;
+    }
+}</style>
+
+
+
+     
+    
+    
+
+    
+    <!-- search css support -->
+<link href="../../css/search/bootstrap-modal.css" rel="stylesheet">
+<!-- search scripts -->
+<script>
+    var base_url = "../..",
+    shortcuts = "{}";
+</script>
+<script src="../../js/jquery/jquery-1.10.1.min.js" defer></script>
+<script src="../../js/bootstrap/bootstrap.min.js" defer></script>
+<script src="../../js/mkdocs/base.js" defer></script>
+    
+    
+    
+    
+    <script src="../../search/main.js"></script>
+    
+
+    
+</head>
+
+<body class="terminal"><div class="container">
+    <div class="terminal-nav">
+        <header class="terminal-logo">
+            <div id="mkdocs-terminal-site-name" class="logo terminal-prompt"><a href="https://gruejay.github.io/container-runtime/" class="no-style">boxr container runner</a></div>
+        </header>
+        
+        <nav class="terminal-menu">
+            
+            <ul vocab="https://schema.org/" typeof="BreadcrumbList">
+                
+                
+                <li property="itemListElement" typeof="ListItem">
+                    <a href="../.." class="menu-item " property="item" typeof="WebPage">
+                        <span property="name">Home</span>
+                    </a>
+                    <meta property="position" content="0">
+                </li>
+                
+                
+                
+                    
+                    
+
+
+<li property="itemListElement" typeof="ListItem">
+    <a href="#" class="menu-item" data-toggle="modal" data-target="#mkdocs_search_modal" property="item" typeof="SearchAction">
+        <i aria-hidden="true" class="fa fa-search"></i> <span property="name">Search</span>
+    </a>
+    <meta property="position" content="1">
+</li>
+                    
+            </ul>
+            
+        </nav>
+    </div>
+</div>
+        
+    <div class="container">
+        <div class="terminal-mkdocs-main-grid"><aside id="terminal-mkdocs-side-panel"><nav>
+  
+    <ul class="terminal-mkdocs-side-nav-items">
+        
+          
+
+
+
+<li class="terminal-mkdocs-side-nav-li">
+    
+    
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../..">Home</a>
+        
+    
+    
+    
+  </li>
+        
+          
+
+
+
+<li class="terminal-mkdocs-side-nav-li">
+    
+    
+        
+        
+            
+            
+                
+                
+        
+
+             
+            
+    
+        
+        <a class="
+
+    terminal-mkdocs-side-nav-item--active" href="../">Steps</a>
+    
+    
+        
+      
+        
+            <ul class="terminal-mkdocs-side-nav-li-ul">
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../step1/">Step 1: Getting Started</a>
+        
+    
+    </li>
+            
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../step2/">Step 2: Namespaces (Part 1)</a>
+        
+    
+    </li>
+            
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        <span class="
+
+    terminal-mkdocs-side-nav-item--active">Step 3: Filesystem (Part 1)</span>
+    
+    </li>
+            
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../step4/">Step 4: Filesystems (Part 2)</a>
+        
+    
+    </li>
+            
+            
+    </ul>
+        
+    
+  </li>
+        
+    </ul>
+  
+</nav><hr>
+<nav>
+    <ul>
+        <li><a href="#step-3-filesystems-part-1">Step 3: Filesystems (Part 1)</a></li>
+        <li><a href="#chroot">chroot</a></li><li><a href="#doing-it-in-go">Doing it in Go</a></li><li><a href="#chroot-is-dangereous-take-this-hands-you-pivot_root">chroot is dangereous, take this [hands you pivot_root]</a></li>
+    </ul>
+</nav>
+</aside>
+            <main id="terminal-mkdocs-main-content">
+<section id="mkdocs-terminal-content">
+    <h1 id="step-3-filesystems-part-1">Step 3: Filesystems (Part 1)</h1>
+<p>As we saw last time, even though we puanched our process in a new <code>PID</code> namespace, <code>ps</code>
+still showed other processes on the host. This was because <code>ps</code> works by reading from
+<code>/proc</code>, which is the same "on the host" and "in the container". In this installment,
+we will start our journey of learning how to get filesystem isolation inside the container.</p>
+<h2 id="chroot"><code>chroot</code></h2>
+<p>We need to start by sectioning off the "container" into its own directory on the host filesystem.
+But since we want to isolate the process, that directory should look like root <code>/</code> to the process in
+the container. We can do that using the <code>chroot</code> syscall/command. We can test in the CLI:</p>
+<blockquote>
+<p>Note: I've included a copy of <code>stage3-chroot</code> in the repo. This was generated on an m4 Macbook,
+you're system may be different. Remove my copy and follow along if you want to test this yourself.</p>
+</blockquote>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span style="color: #BBB"> </span>mkdir<span style="color: #BBB"> </span>stage3-chroot
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>$<span style="color: #BBB"> </span>sudo<span style="color: #BBB"> </span>chroot<span style="color: #BBB"> </span>stage3-chroot<span style="color: #BBB"> </span>ls
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>chroot:<span style="color: #BBB"> </span>failed<span style="color: #BBB"> </span>to<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span><span style="color: #008000">command</span><span style="color: #BBB"> </span>‘ls’:<span style="color: #BBB"> </span>No<span style="color: #BBB"> </span>such<span style="color: #BBB"> </span>file<span style="color: #BBB"> </span>or<span style="color: #BBB"> </span>directory
+</code></pre></div>
+<p>huh....let's try passing the whole path to the command.</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$<span style="color: #BBB"> </span>sudo<span style="color: #BBB"> </span>chroot<span style="color: #BBB"> </span>stage3-chroot<span style="color: #BBB"> </span>/usr/bin/ls
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>chroot:<span style="color: #BBB"> </span>failed<span style="color: #BBB"> </span>to<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span><span style="color: #008000">command</span><span style="color: #BBB"> </span>‘/bin/ls’:<span style="color: #BBB"> </span>No<span style="color: #BBB"> </span>such<span style="color: #BBB"> </span>file<span style="color: #BBB"> </span>or<span style="color: #BBB"> </span>directory
+</code></pre></div>
+<p>By calling <code>chroot</code>, we are telling the new process "this new subdirectory is <code>/</code> to you".
+And the new subdirectory is totally empty! So <code>/usr/bin/ls</code> can't exist-- there's nothing
+at <code>/</code> at all! Let's try copying the <code>ls</code> binary into <code>stage3-chroot</code>:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$<span style="color: #BBB"> </span>mkdir<span style="color: #BBB"> </span>-p<span style="color: #BBB"> </span>stage3-chroot/usr/bin
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>$<span style="color: #BBB"> </span>sudo<span style="color: #BBB"> </span>cp<span style="color: #BBB"> </span>/usr/bin/ls<span style="color: #BBB"> </span>stage3-chroot/usr/bin/ls
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>$<span style="color: #BBB"> </span>sudo<span style="color: #BBB"> </span>chroot<span style="color: #BBB"> </span>stage3-chroot<span style="color: #BBB"> </span>ls
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>chroot:<span style="color: #BBB"> </span>failed<span style="color: #BBB"> </span>to<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span><span style="color: #008000">command</span><span style="color: #BBB"> </span>‘ls’:<span style="color: #BBB"> </span>No<span style="color: #BBB"> </span>such<span style="color: #BBB"> </span>file<span style="color: #BBB"> </span>or<span style="color: #BBB"> </span>directory
+</code></pre></div>
+<p>Still nothing. The command is there, but still can't be found. At this point, the error message
+is a bit misleading. It can <em>find</em> the <code>ls</code> command but it cannot <em>execute</em> it, because
+<code>ls</code> dynamically loads several libraries, and once again, the new root is missing those.</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$<span style="color: #BBB"> </span>ldd<span style="color: #BBB"> </span>/usar/bin/ls
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span style="color: #BBB">        </span>linux-vdso.so.1<span style="color: #BBB"> </span><span style="color: #666">(</span>0x00007ffda3d63000<span style="color: #666">)</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span style="color: #BBB">        </span>libselinux.so.1<span style="color: #BBB"> </span><span style="color: #666">=</span>&gt;<span style="color: #BBB"> </span>/lib/x86_64-linux-gnu/libselinux.so.1<span style="color: #BBB"> </span><span style="color: #666">(</span>0x00007e02439dc000<span style="color: #666">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span style="color: #BBB">        </span>libc.so.6<span style="color: #BBB"> </span><span style="color: #666">=</span>&gt;<span style="color: #BBB"> </span>/lib/x86_64-linux-gnu/libc.so.6<span style="color: #BBB"> </span><span style="color: #666">(</span>0x00007e0243600000<span style="color: #666">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span style="color: #BBB">        </span>libpcre2-8.so.0<span style="color: #BBB"> </span><span style="color: #666">=</span>&gt;<span style="color: #BBB"> </span>/lib/x86_64-linux-gnu/libpcre2-8.so.0<span style="color: #BBB"> </span><span style="color: #666">(</span>0x00007e0243942000<span style="color: #666">)</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span style="color: #BBB">        </span>/lib64/ld-linux-x86-64.so.2<span style="color: #BBB"> </span><span style="color: #666">(</span>0x00007e0243a38000<span style="color: #666">)</span>
+</code></pre></div>
+<blockquote>
+<p>Note: <code>devbox</code> messes with <code>ldd</code> since it replaces the standard library paths with nix store paths. 
+If you try this on your machine, ensure you disable your devbox shell before running ldd. Even though 
+the nix store libraries should be fine, I noticed it was missing a required selinux library, so
+I created the <code>stage3-chroot</code> dir with binaries pulled directly from the system lib/lib64.</p>
+</blockquote>
+<p>So now we need to copy each of those <code>/lib/*</code> and <code>/lib64/*</code> libraries into <code>stage3-chroot/lib</code> and
+<code>stage3-chroot/lib64</code>:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$<span style="color: #BBB"> </span>mkdir<span style="color: #BBB"> </span>stage3-chroot/lib<span style="color: #BBB"> </span>stage3-chroot/lib64
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>$<span style="color: #BBB"> </span>cp<span style="color: #BBB"> </span>/lib64/ld-linux-x86-64.so.2<span style="color: #BBB"> </span>stage3-chroot/lib64
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>$<span style="color: #BBB"> </span>cp<span style="color: #BBB"> </span>/lib/x86_64-linux-gnu/libselinux.so.1<span style="color: #BBB"> </span>/lib/x86_64-linux-gnu/libc.so.6<span style="color: #BBB"> </span>/lib/x86_64-linux-gnu/libpcre2-8.so.0<span style="color: #BBB"> </span>stage3-chroot/lib
+</code></pre></div>
+<p>Now finally: 
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$<span style="color: #BBB"> </span>sudo<span style="color: #BBB"> </span>chroot<span style="color: #BBB"> </span>stage3-chroot<span style="color: #BBB"> </span>ls
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>lib<span style="color: #BBB">  </span>lib64<span style="color: #BBB"> </span>usr
+</code></pre></div></p>
+<p>Yay! So what have we learned? In order to run a command inside a chroot, we need the binary and any libraries
+that the binary loads dynamically, associated files, etc. And in order to see process info, we need <code>/proc</code>.
+And to configure the processes, we might need stuff in <code>/etc/</code>... its starting to feel like we need a whole copy
+of the root filesystem inside our container in order to do arbitrary tasks. Indeed, thats how many container images handle
+it. </p>
+<h2 id="doing-it-in-go">Doing it in Go</h2>
+<p>Now that we know the principles, let's implement it in Go.</p>
+<p>All we need to do is add a new config parameter for the root directory to run the container in, populate the field from a flag,
+then use <code>syscall.Chroot</code> to enter it.</p>
+<p><code>pkg/container.go</code>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span style="color: #008000; font-weight: bold">type</span><span style="color: #BBB"> </span>Container<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">struct</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span style="color: #BBB">    </span>Namespaces<span style="color: #BBB"> </span>NamespaceConfig<span style="color: #BBB"> </span><span style="color: #BA2121">`json:&quot;namespaces&quot;`</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span style="color: #BBB">    </span>Detach<span style="color: #BBB">     </span><span style="color: #B00040">bool</span><span style="color: #BBB">            </span><span style="color: #BA2121">`json:&quot;detach&quot;`</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span style="color: #BBB">    </span>Command<span style="color: #BBB">    </span><span style="color: #B00040">string</span><span style="color: #BBB">          </span><span style="color: #BA2121">`json:&quot;command&quot;`</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span style="color: #BBB">    </span>Args<span style="color: #BBB">       </span>[]<span style="color: #B00040">string</span><span style="color: #BBB">        </span><span style="color: #BA2121">`json:&quot;args&quot;`</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span style="color: #BBB">    </span>Root<span style="color: #BBB">       </span><span style="color: #B00040">string</span><span style="color: #BBB">          </span><span style="color: #BA2121">`json:&quot;root&quot;`</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>}
+</code></pre></div></p>
+<blockquote>
+<p>Note: I also refactored the <code>Args</code> parameter to split into <code>Command</code> (the root command) and <code>Args</code> (the rest of the args).
+this is more in line with other container systems</p>
+</blockquote>
+<p><code>cmd/main.go</code>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span style="color: #008000; font-weight: bold">func</span><span style="color: #BBB"> </span>init()<span style="color: #BBB"> </span>{
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span style="color: #BBB">    </span>runCmd.Flags().BoolVarP(<span style="color: #666">&amp;</span>detach,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;detach&quot;</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;d&quot;</span>,<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">false</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Run container in background&quot;</span>)
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span style="color: #BBB">    </span>runCmd.Flags().StringVarP(<span style="color: #666">&amp;</span>root,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;root&quot;</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;r&quot;</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;rootfs&quot;</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Root directory of container&quot;</span>)
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span style="color: #BBB">    </span>runCmd.MarkFlagRequired(<span style="color: #BA2121">&quot;root&quot;</span>)
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span style="color: #BBB">    </span>rootCmd.AddCommand(runCmd)
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span style="color: #BBB">    </span>rootCmd.AddCommand(stopCmd)
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span style="color: #BBB">    </span>rootCmd.AddCommand(killCmd)
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>}
+</code></pre></div>
+Since there's no way to reasonably set a default value, we mark the flag as required. I won't show adding the var and setting the 
+<code>c.Root</code> field since that's the same as detach and args.</p>
+<p>Now we just have to update <code>c.Run</code> to use the new field to chroot. I won't replicate the entire func, but the only requirement
+is to add the chroot and chdir before executung <code>cmd.Run</code> or <code>cmd.Start</code></p>
+<p><code>pkg/container/container.go</code>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span style="color: #008000; font-weight: bold">func</span><span style="color: #BBB"> </span>(c<span style="color: #BBB"> </span><span style="color: #666">*</span>Container)<span style="color: #BBB"> </span>Run()<span style="color: #BBB"> </span><span style="color: #B00040">error</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span style="color: #BBB">    </span><span style="color: #666">...</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span style="color: #BBB">    </span>syscall.Chroot(c.Root)
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span style="color: #BBB">    </span>os.Chdir(<span style="color: #BA2121">&quot;/&quot;</span>)
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span style="color: #BBB">    </span><span style="color: #666">...</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>}
+</code></pre></div></p>
+<p>Let's test using our <code>stage3-chroot</code> directory:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span style="color: #3D7B7B; font-style: italic"># ./boxr run -r stage3-chroot -- ls</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>lib<span style="color: #BBB">  </span>lib64<span style="color: #BBB">  </span>usr
+</code></pre></div>
+<p>Success! As a last step, let's learn how to easily get a copy of an entire bsybox distribution with
+all of the binaries and files present that we need to have a usable shell inside our "container".
+I've included a copy in <code>rootfs</code>, but the process is very simple if you already have docker:
+(copied from the <a href="https://github.com/opencontainers/runc?tab=readme-ov-file#creating-an-oci-bundle">runc README.md</a>)</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span style="color: #3D7B7B; font-style: italic"># create the top most bundle directory</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>mkdir<span style="color: #BBB"> </span>mycontainer
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span style="color: #008000">cd</span><span style="color: #BBB"> </span>mycontainer
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span style="color: #3D7B7B; font-style: italic"># create the rootfs directory</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>mkdir<span style="color: #BBB"> </span>rootfs
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span style="color: #3D7B7B; font-style: italic"># export busybox via Docker into the rootfs directory</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>docker<span style="color: #BBB"> </span><span style="color: #008000">export</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">$(</span>docker<span style="color: #BBB"> </span>create<span style="color: #BBB"> </span>busybox<span style="color: #008000; font-weight: bold">)</span><span style="color: #BBB"> </span>|<span style="color: #BBB"> </span>tar<span style="color: #BBB"> </span>-C<span style="color: #BBB"> </span>rootfs<span style="color: #BBB"> </span>-xvf<span style="color: #BBB"> </span>-
+</code></pre></div>
+<p>There's plenty more to say about filesystems. In Step 4: Filesystems Part 2 we will
+learn about mounts and masks to solve the <code>/proc</code> issue that sent us down this path.</p>
+<h2 id="chroot-is-dangereous-take-this-hands-you-pivot_root"><code>chroot</code> is dangereous, take this [<em>hands you <code>pivot_root</code></em>]</h2>
+<p>Great source that I rely heavily on for learning how <code>pivot_root</code> and <code>chroot</code> work together:
+<code>https://tbhaxor.com/pivot-root-vs-chroot-for-containers/</code></p>
+<p><code>chroot</code> alone gives pretty good filesystem isolation (protecting the host system from whatever happens in the container) 
+but its not perfect. If (when) someone does something silly, like run the container in privileged mode, where the process
+inside the container has <code>CAP_SYS_CHROOT</code>, they can do a "double chroot" exploit and get a root shell on the host. Using 
+<code>pivot_root</code>, another syscall, before using <code>chroot</code> makes it possible to eliminate this exploit.</p>
+<blockquote>
+<p>Note: As always, its important to point out that none of these mitigations should be relied on entirely for security.
+Containers, even the ones executed via <code>runc</code>, are not perfectly secure.</p>
+</blockquote>
+<p>We will dig into this more in a future installment, but I wanted to highlight it now since seeing <code>chroot</code> used in
+the way we did in this installment may have set off alarm bells in some readers' heads.</p>
+</section>
+
+            </main>
+        </div>
+        <hr><footer>
+    <div class="terminal-mkdocs-footer-grid">
+        <div id="terminal-mkdocs-footer-copyright-info">
+             Site built with <a href="http://www.mkdocs.org">MkDocs</a> and <a href="https://github.com/ntno/mkdocs-terminal">Terminal for MkDocs</a>.
+        </div>
+        <div id="terminal-mkdocs-footer-prev-next">
+            <nav class="btn-group">
+                <a href="../step2/" title="Step 2: Namespaces (Part 1)">Previous</a>
+                |
+                <a href="../step4/" title="Step 4: Filesystems (Part 2)">Next</a>
+            </nav>
+        </div>
+    </div>
+</footer>
+    </div>
+
+    
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="alertdialog" aria-modal="true" aria-labelledby="searchModalLabel">
+    <div class="modal-dialog modal-lg" role="search">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchModalLabel">Search</h5>
+                <button type="button" class="close btn btn-default btn-ghost" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p id="searchInputLabel">Type to start searching</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" aria-labelledby="searchInputLabel" placeholder="" id="mkdocs-search-query" title="Please enter search terms here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No document matches found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    
+    
+</body>
+
+</html>

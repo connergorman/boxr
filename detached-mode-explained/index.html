@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="generator" content="mkdocs-1.6.1, mkdocs-terminal-4.7.0">
+    
+    <meta name="description" content="A simple container runtime implementation"> 
+     
+    
+    <link rel="canonical" href="https://gruejay.github.io/container-runtime/detached-mode-explained/"><link rel="icon" type="image/png" sizes="192x192" href="../img/android-chrome-192x192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="../img/android-chrome-512x512.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png" />
+<link rel="shortcut icon" type="image/png" sizes="48x48" href="../img/favicon.ico" />
+<link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png" />
+
+
+    
+ 
+<title>Detached Mode Implementation Explained - boxr container runner</title>
+
+
+<link href="../css/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+<link href="../css/fontawesome/css/solid.min.css" rel="stylesheet">
+<link href="../css/normalize.css" rel="stylesheet">
+<link href="../css/terminal.css" rel="stylesheet">
+<link href="../css/theme.css" rel="stylesheet">
+<link href="../css/theme.tile_grid.css" rel="stylesheet">
+<link href="../css/theme.footer.css" rel="stylesheet">
+<!-- dark color palette -->
+<link href="../css/palettes/dark.css" rel="stylesheet">
+
+<!-- page layout -->
+<style>
+/* initially set page layout to a one column grid */
+.terminal-mkdocs-main-grid {
+    display: grid;
+    grid-column-gap: 1.4em;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+}
+
+/*  
+*   when side navigation is not hidden, use a two column grid.  
+*   if the screen is too narrow, fall back to the initial one column grid layout.
+*   in this case the main content will be placed under the navigation panel. 
+*/
+@media only screen and (min-width: 70em) {
+    .terminal-mkdocs-main-grid {
+        grid-template-columns: 4fr 9fr;
+    }
+}</style>
+
+
+
+     
+    
+    
+
+    
+    <!-- search css support -->
+<link href="../css/search/bootstrap-modal.css" rel="stylesheet">
+<!-- search scripts -->
+<script>
+    var base_url = "..",
+    shortcuts = "{}";
+</script>
+<script src="../js/jquery/jquery-1.10.1.min.js" defer></script>
+<script src="../js/bootstrap/bootstrap.min.js" defer></script>
+<script src="../js/mkdocs/base.js" defer></script>
+    
+    
+    
+    
+    <script src="../search/main.js"></script>
+    
+
+    
+</head>
+
+<body class="terminal"><div class="container">
+    <div class="terminal-nav">
+        <header class="terminal-logo">
+            <div id="mkdocs-terminal-site-name" class="logo terminal-prompt"><a href="https://gruejay.github.io/container-runtime/" class="no-style">boxr container runner</a></div>
+        </header>
+        
+        <nav class="terminal-menu">
+            
+            <ul vocab="https://schema.org/" typeof="BreadcrumbList">
+                
+                
+                <li property="itemListElement" typeof="ListItem">
+                    <a href=".." class="menu-item " property="item" typeof="WebPage">
+                        <span property="name">Home</span>
+                    </a>
+                    <meta property="position" content="0">
+                </li>
+                
+                
+                
+                    
+                    
+
+
+<li property="itemListElement" typeof="ListItem">
+    <a href="#" class="menu-item" data-toggle="modal" data-target="#mkdocs_search_modal" property="item" typeof="SearchAction">
+        <i aria-hidden="true" class="fa fa-search"></i> <span property="name">Search</span>
+    </a>
+    <meta property="position" content="1">
+</li>
+                    
+            </ul>
+            
+        </nav>
+    </div>
+</div>
+        
+    <div class="container">
+        <div class="terminal-mkdocs-main-grid"><aside id="terminal-mkdocs-side-panel"><nav>
+  
+    <ul class="terminal-mkdocs-side-nav-items">
+        
+          
+
+
+
+<li class="terminal-mkdocs-side-nav-li">
+    
+    
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="..">Home</a>
+        
+    
+    
+    
+  </li>
+        
+          
+
+
+
+<li class="terminal-mkdocs-side-nav-li">
+    
+    
+        
+        
+            
+            
+                
+                
+        
+
+             
+            
+    
+        
+        <a class="
+
+    terminal-mkdocs-side-nav-item" href="../steps/">Steps</a>
+    
+    
+        
+      
+        
+            <ul class="terminal-mkdocs-side-nav-li-ul">
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../steps/step1/">Step 1: Getting Started</a>
+        
+    
+    </li>
+            
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../steps/step2/">Step 2: Namespaces (Part 1)</a>
+        
+    
+    </li>
+            
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../steps/step3/">Step 3: Filesystem (Part 1)</a>
+        
+    
+    </li>
+            
+        
+            
+            
+                
+                
+            
+
+             
+                <li class="terminal-mkdocs-side-nav-li-ul-li">
+    
+        
+        
+            <a class="
+
+    terminal-mkdocs-side-nav-item" href="../steps/step4/">Step 4: Filesystems (Part 2)</a>
+        
+    
+    </li>
+            
+            
+    </ul>
+        
+    
+  </li>
+        
+    </ul>
+  
+</nav><hr>
+<nav>
+    <ul>
+        <li><a href="#detached-mode-implementation-explained">Detached Mode Implementation Explained</a></li>
+        <li><a href="#high-level-overview">High-Level Overview</a></li><li><a href="#detailed-analysis">Detailed Analysis</a></li>
+    </ul>
+</nav>
+</aside>
+            <main id="terminal-mkdocs-main-content">
+<section id="mkdocs-terminal-content">
+    <h1 id="detached-mode-implementation-explained">Detached Mode Implementation Explained</h1>
+<h2 id="high-level-overview">High-Level Overview</h2>
+<p>The detached mode feature allows a container to run in the background, similar to how Docker's <code>-d</code> flag works. When a user runs <code>boxr run -d</code>, the container should:</p>
+<ol>
+<li>Start in the background as a daemon process</li>
+<li>Detach from the terminal </li>
+<li>Continue running even after the parent process exits</li>
+<li>Log output to a file instead of the terminal</li>
+</ol>
+<p>The main challenge was implementing proper Unix daemonization while preserving the container's namespace isolation and ensuring all configuration (especially file paths) survived the multiple process forks required for daemonization.</p>
+<h2 id="detailed-analysis">Detailed Analysis</h2>
+<h3 id="the-original-problem">The Original Problem</h3>
+<p>When implementing detached mode, several issues prevented the container from running properly:</p>
+<ol>
+<li><strong>Process Lifetime</strong>: The container process would exit immediately after starting</li>
+<li><strong>Path Resolution</strong>: The rootfs path would be lost or incorrectly resolved during the daemonization process</li>
+<li><strong>I/O Redirection</strong>: Output wasn't being captured to log files</li>
+<li><strong>Process Visibility</strong>: Even when the process started, it wasn't visible with standard tools like <code>ps</code></li>
+</ol>
+<h3 id="root-causes">Root Causes</h3>
+<h4 id="1-incomplete-daemonization">1. Incomplete Daemonization</h4>
+<p>The original implementation only did a single fork with <code>Setsid</code>, which is insufficient for proper daemonization. A proper daemon requires:
+- Double forking to ensure the process can't reacquire a controlling terminal
+- Closing or redirecting all file descriptors
+- Changing the working directory to /
+- Clearing the umask</p>
+<h4 id="2-path-loss-during-re-execution">2. Path Loss During Re-execution</h4>
+<p>The container runtime uses a "re-exec" pattern where it re-executes itself with special environment variables to create new namespaces. During detached mode, this happened multiple times:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Original process → First fork (detach) → Re-exec (namespaces) → Container init
+</code></pre></div></p>
+<p>The problem was that relative paths (like <code>./rootfs</code>) were being resolved differently after <code>chdir("/")</code> in the daemonization process, causing the path to become <code>/rootfs</code> instead of <code>/home/ubuntu/container-runtime/rootfs</code>.</p>
+<h4 id="3-file-descriptor-inheritance">3. File Descriptor Inheritance</h4>
+<p>The re-exec process was overwriting carefully set up file descriptors (for logging) with the original stdin/stdout/stderr, causing log output to be lost.</p>
+<h3 id="the-solution">The Solution</h3>
+<p>The implementation addresses these issues with a multi-stage approach:</p>
+<h4 id="stage-1-path-resolution">Stage 1: Path Resolution</h4>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span style="color: #3D7B7B; font-style: italic">// Convert relative paths to absolute before any forking</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>absRoot,<span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>filepath.Abs(root)
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span style="color: #BBB">    </span>fmt.Printf(<span style="color: #BA2121">&quot;Error getting absolute path: %v\n&quot;</span>,<span style="color: #BBB"> </span>err)
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span style="color: #BBB">    </span>os.Exit(<span style="color: #666">1</span>)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>}
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>c.Root<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>absRoot
+</code></pre></div>
+<h4 id="stage-2-first-fork-detachment">Stage 2: First Fork (Detachment)</h4>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>c.Detach<span style="color: #BBB"> </span><span style="color: #666">&amp;&amp;</span><span style="color: #BBB"> </span>os.Getenv(<span style="color: #BA2121">&quot;_CONTAINER_INIT&quot;</span>)<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #BA2121">&quot;1&quot;</span><span style="color: #BBB"> </span><span style="color: #666">&amp;&amp;</span><span style="color: #BBB"> </span>os.Getenv(<span style="color: #BA2121">&quot;_CONTAINER_DETACH&quot;</span>)<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #BA2121">&quot;1&quot;</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span style="color: #BBB">    </span><span style="color: #3D7B7B; font-style: italic">// Reconstruct args with absolute path</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span style="color: #BBB">    </span>args<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>[]<span style="color: #B00040">string</span>{<span style="color: #BA2121">&quot;run&quot;</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;--detach&quot;</span>,<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;--root&quot;</span>,<span style="color: #BBB"> </span>c.Root,<span style="color: #BBB"> </span>c.Command}
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span style="color: #BBB">    </span>args<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span><span style="color: #008000">append</span>(args,<span style="color: #BBB"> </span>c.Args<span style="color: #666">...</span>)
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span style="color: #BBB">    </span>cmd<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>exec.Command(os.Args[<span style="color: #666">0</span>],<span style="color: #BBB"> </span>args<span style="color: #666">...</span>)
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span style="color: #BBB">    </span>cmd.Env<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span><span style="color: #008000">append</span>(os.Environ(),<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;_CONTAINER_DETACH=1&quot;</span>)
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span style="color: #BBB">    </span>cmd.SysProcAttr<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span><span style="color: #666">&amp;</span>syscall.SysProcAttr{
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span style="color: #BBB">        </span>Setsid:<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">true</span>,<span style="color: #BBB"> </span><span style="color: #3D7B7B; font-style: italic">// Create new session</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span style="color: #BBB">    </span>}
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span style="color: #BBB">    </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>cmd.Start();<span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span style="color: #BBB">        </span>fmt.Printf(<span style="color: #BA2121">&quot;Error starting detached container: %v\n&quot;</span>,<span style="color: #BBB"> </span>err)
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span style="color: #BBB">        </span>os.Exit(<span style="color: #666">1</span>)
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span style="color: #BBB">    </span>}
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span style="color: #BBB">    </span>fmt.Printf(<span style="color: #BA2121">&quot;Started detached container (PID: %d)\n&quot;</span>,<span style="color: #BBB"> </span>cmd.Process.Pid)
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span style="color: #BBB">    </span>fmt.Printf(<span style="color: #BA2121">&quot;Logs will be written to: /var/log/boxr/container-%d.log\n&quot;</span>,<span style="color: #BBB"> </span>cmd.Process.Pid)
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span style="color: #BBB">    </span>os.Exit(<span style="color: #666">0</span>)
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>}
+</code></pre></div>
+<p>Key improvements:
+- Reconstructs the command line with the absolute path instead of using <code>os.Args[1:]</code>
+- Sets <code>_CONTAINER_DETACH=1</code> environment variable to track state
+- Creates a new session with <code>Setsid</code></p>
+<h4 id="stage-25-daemonization-setup">Stage 2.5: Daemonization Setup</h4>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>os.Getenv(<span style="color: #BA2121">&quot;_CONTAINER_DETACH&quot;</span>)<span style="color: #BBB"> </span><span style="color: #666">==</span><span style="color: #BBB"> </span><span style="color: #BA2121">&quot;1&quot;</span><span style="color: #BBB"> </span><span style="color: #666">&amp;&amp;</span><span style="color: #BBB"> </span>os.Getenv(<span style="color: #BA2121">&quot;_CONTAINER_INIT&quot;</span>)<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #BA2121">&quot;1&quot;</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span style="color: #BBB">    </span>logDir<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span><span style="color: #BA2121">&quot;/var/log/boxr&quot;</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span style="color: #BBB">    </span>os.MkdirAll(logDir,<span style="color: #BBB"> </span><span style="color: #666">0755</span>)
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span style="color: #BBB">    </span>logFile<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>fmt.Sprintf(<span style="color: #BA2121">&quot;%s/container-%d.log&quot;</span>,<span style="color: #BBB"> </span>logDir,<span style="color: #BBB"> </span>os.Getpid())
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span style="color: #BBB">    </span><span style="color: #3D7B7B; font-style: italic">// Change directory to /</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span style="color: #BBB">    </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>os.Chdir(<span style="color: #BA2121">&quot;/&quot;</span>);<span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span style="color: #BBB">        </span>os.Exit(<span style="color: #666">1</span>)
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span style="color: #BBB">    </span>}
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span style="color: #BBB">    </span><span style="color: #3D7B7B; font-style: italic">// Clear umask</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span style="color: #BBB">    </span>syscall.Umask(<span style="color: #666">0</span>)
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span style="color: #BBB">    </span><span style="color: #3D7B7B; font-style: italic">// Set up environment with log file path</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span style="color: #BBB">    </span>os.Setenv(<span style="color: #BA2121">&quot;_CONTAINER_LOG&quot;</span>,<span style="color: #BBB"> </span>logFile)
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span style="color: #BBB">    </span><span style="color: #3D7B7B; font-style: italic">// Continue with normal flow</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>}
+</code></pre></div>
+<h4 id="stage-3-io-redirection-after-namespace-creation">Stage 3: I/O Redirection (After Namespace Creation)</h4>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>logFile<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>os.Getenv(<span style="color: #BA2121">&quot;_CONTAINER_LOG&quot;</span>);<span style="color: #BBB"> </span>logFile<span style="color: #BBB"> </span><span style="color: #666">!=</span><span style="color: #BBB"> </span><span style="color: #BA2121">&quot;&quot;</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span style="color: #BBB">    </span><span style="color: #3D7B7B; font-style: italic">// Open log file for output</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span style="color: #BBB">    </span>logFd,<span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>os.OpenFile(logFile,<span style="color: #BBB"> </span>os.O_CREATE<span style="color: #666">|</span>os.O_WRONLY<span style="color: #666">|</span>os.O_APPEND,<span style="color: #BBB"> </span><span style="color: #666">0644</span>)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span style="color: #BBB">    </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">==</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span style="color: #BBB">        </span><span style="color: #3D7B7B; font-style: italic">// Redirect stdout and stderr to log file</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span style="color: #BBB">        </span>os.Stdout<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>logFd
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span style="color: #BBB">        </span>os.Stderr<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>logFd
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span style="color: #BBB">        </span><span style="color: #3D7B7B; font-style: italic">// Also redirect for child processes</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span style="color: #BBB">        </span>syscall.Dup2(<span style="color: #008000">int</span>(logFd.Fd()),<span style="color: #BBB"> </span><span style="color: #666">1</span>)
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span style="color: #BBB">        </span>syscall.Dup2(<span style="color: #008000">int</span>(logFd.Fd()),<span style="color: #BBB"> </span><span style="color: #666">2</span>)
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span style="color: #BBB">    </span>}
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span style="color: #BBB">    </span><span style="color: #3D7B7B; font-style: italic">// Redirect stdin to /dev/null</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span style="color: #BBB">    </span>devNull,<span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">:=</span><span style="color: #BBB"> </span>os.Open(<span style="color: #BA2121">&quot;/dev/null&quot;</span>)
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span style="color: #BBB">    </span><span style="color: #008000; font-weight: bold">if</span><span style="color: #BBB"> </span>err<span style="color: #BBB"> </span><span style="color: #666">==</span><span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">nil</span><span style="color: #BBB"> </span>{
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span style="color: #BBB">        </span>os.Stdin<span style="color: #BBB"> </span>=<span style="color: #BBB"> </span>devNull
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span style="color: #BBB">        </span>syscall.Dup2(<span style="color: #008000">int</span>(devNull.Fd()),<span style="color: #BBB"> </span><span style="color: #666">0</span>)
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span style="color: #BBB">    </span>}
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>}
+</code></pre></div>
+<p>This happens after the re-exec but before the final container execution, ensuring logs are captured.</p>
+<h3 id="how-it-works-now">How It Works Now</h3>
+<ol>
+<li>User runs: <code>boxr run -d --root ./rootfs sleep 300</code></li>
+<li>Main process converts <code>./rootfs</code> to absolute path</li>
+<li>Main process forks a child with <code>_CONTAINER_DETACH=1</code></li>
+<li>Main process exits, printing the PID</li>
+<li>Detached child sets up logging path and daemonizes</li>
+<li>Detached child re-execs itself with namespace flags</li>
+<li>New process (in namespaces) redirects I/O to log files</li>
+<li>Final exec replaces process with user command (<code>sleep 300</code>)</li>
+</ol>
+<p>The result is a properly daemonized container process that:
+- Runs in its own namespaces (PID, mount, UTS, etc.)
+- Is detached from the terminal
+- Logs to <code>/var/log/boxr/container-{PID}.log</code>
+- Continues running after the parent exits
+- Is visible in the host's process list</p>
+<h3 id="key-takeaways">Key Takeaways</h3>
+<ol>
+<li><strong>Preserve Absolute Paths</strong>: When daemonizing, always convert relative paths to absolute before any <code>chdir</code> operations</li>
+<li><strong>Track State with Environment Variables</strong>: Use environment variables to track which stage of the multi-fork process you're in</li>
+<li><strong>Defer I/O Redirection</strong>: Don't redirect I/O until after all re-executions are complete</li>
+<li><strong>Reconstruct Commands Carefully</strong>: When forking, explicitly reconstruct command arguments rather than reusing <code>os.Args</code></li>
+<li><strong>Log Everything</strong>: For daemon processes, always provide a way to capture output for debugging</li>
+</ol>
+</section>
+
+            </main>
+        </div>
+        <hr><footer>
+    <div class="terminal-mkdocs-footer-grid">
+        <div id="terminal-mkdocs-footer-copyright-info">
+             Site built with <a href="http://www.mkdocs.org">MkDocs</a> and <a href="https://github.com/ntno/mkdocs-terminal">Terminal for MkDocs</a>.
+        </div>
+    </div>
+</footer>
+    </div>
+
+    
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="alertdialog" aria-modal="true" aria-labelledby="searchModalLabel">
+    <div class="modal-dialog modal-lg" role="search">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchModalLabel">Search</h5>
+                <button type="button" class="close btn btn-default btn-ghost" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p id="searchInputLabel">Type to start searching</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" aria-labelledby="searchInputLabel" placeholder="" id="mkdocs-search-query" title="Please enter search terms here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No document matches found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    
+    
+</body>
+
+</html>
