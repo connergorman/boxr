@@ -1,5 +1,3 @@
-// Package reexec provides functionality to re-execute the current binary
-// with specific arguments and namespace configurations.
 package reexec
 
 import (
@@ -9,104 +7,81 @@ import (
 	"os/exec"
 	"syscall"
 
-	"github.com/gruejay/container-runtime/internal/logging"
 	"github.com/gruejay/container-runtime/pkg/container"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
-func init() {
-	// Configure structured JSON logger with timestamp and level
-	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-		Level: slog.LevelDebug,
-	}))
-	slog.SetDefault(logger)
-}
+const DefaultStorePath = "/var/lib/boxr"
 
-// Reexec executes the current binary with the given container configuration.
-// It reconstructs the command with all flags and arguments from the original command.
-func Reexec(c *container.Container, cmd *cobra.Command) error {
-	slog.Debug("entered pre-exec")
-	logging.LogNamespaceInfo("before reexec")
+const (
+	envContainerID = "_BOXR_CONTAINER_ID"
+	envStorePath   = "_BOXR_STORE"
+)
 
-	// Rebuild the command with all flags and arguments
-	var args []string
-	args = append(args, c.Command)
-	args = append(args, c.Args...)
-	execCmd, err := BuildCommand(cmd, args...)
+// Init checks whether this process is a reexec'd container child.
+// If so, loads the container config from the store and execs into it.
+// Must be called before any CLI flag parsing (i.e., top of main).
+//
+// Previously this used cobra sub-commands to re-invoke self; it now
+// uses env-var + store handoff so the child needs no CLI knowledge.
+func Init() {
+	id := os.Getenv(envContainerID)
+	if id == "" {
+		return
+	}
+
+	storePath := os.Getenv(envStorePath)
+	if storePath == "" {
+		storePath = DefaultStorePath
+	}
+
+	store, err := container.NewStore(storePath)
 	if err != nil {
-		return fmt.Errorf("failed to rebuild command: %w", err)
+		slog.Error("container init: open store", "err", err)
+		os.Exit(1)
 	}
 
-	// Configure command execution environment
-	execCmd.Stdout = os.Stdout
-	execCmd.Stderr = os.Stderr
-	execCmd.Stdin = os.Stdin
-	execCmd.Env = append(os.Environ(), "_CONTAINER_INIT=1")
-
-	// Set namespace flags for containerization
-	execCmd.SysProcAttr = &syscall.SysProcAttr{
-		Cloneflags: c.GetNamespaceFlags(),
-	}
-
-	// Execute the command
-	if err := execCmd.Run(); err != nil {
-		return fmt.Errorf("failed to invoke self: %w", err)
-	}
-
-	return nil
-}
-
-// BuildCommand creates an exec.Cmd that reproduces the given cobra command.
-// It preserves all explicitly set flags and arguments.
-func BuildCommand(cmd *cobra.Command, args ...string) (*exec.Cmd, error) {
-	// Get the path to the current binary
-	binary, err := os.Readlink("/proc/self/exe")
+	c, err := store.GetContainer(id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read /proc/self/exe: %w", err)
+		slog.Error("container init: get container", "id", id, "err", err)
+		os.Exit(1)
 	}
 
-	// Build command arguments
-	cmdArgs := buildCommandArgs(cmd, args)
+	if err := c.Config.Run(); err != nil {
+		slog.Error("container init: run", "err", err)
+		os.Exit(1)
+	}
 
-	fmt.Printf("Reconstructed command: %s %v\n", binary, cmdArgs)
-
-	return exec.Command(binary, cmdArgs...), nil
+	os.Exit(0)
 }
 
-// buildCommandArgs constructs the command arguments from a cobra command.
-func buildCommandArgs(cmd *cobra.Command, args []string) []string {
-	var cmdArgs []string
-
-	// Add the subcommand name if available
-	if cmd.CalledAs() != "" {
-		cmdArgs = append(cmdArgs, cmd.CalledAs())
+// Start forks /proc/self/exe into new Linux namespaces and wires it to run
+// the container identified by containerID. The child detects the env var in
+// Init() and calls Run() instead of the normal CLI path.
+//
+// Previously cloneflags were reconstructed from CLI args; they now come
+// directly from the sandbox's persisted NamespaceConfig.Flags().
+func Start(storePath, containerID string, nsFlags uintptr, detach bool) (*os.Process, error) {
+	self, err := os.Readlink("/proc/self/exe")
+	if err != nil {
+		return nil, fmt.Errorf("readlink /proc/self/exe: %w", err)
 	}
 
-	// Add all flags that have been explicitly set
-	cmd.Flags().Visit(func(flag *pflag.Flag) {
-		// Skip help flag
-		if flag.Name == "help" {
-			return
-		}
-
-		cmdArgs = append(cmdArgs, formatFlag(flag))
-	})
-
-	// Add the command arguments
-	return append(cmdArgs, args...)
-}
-
-// formatFlag formats a flag as a command-line argument.
-func formatFlag(flag *pflag.Flag) string {
-	// Handle boolean flags specially
-	if flag.Value.Type() == "bool" {
-		if flag.Value.String() == "true" {
-			return "--" + flag.Name
-		}
-		return "--" + flag.Name + "=false"
+	cmd := exec.Command(self)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	cmd.Env = append(os.Environ(),
+		envContainerID+"="+containerID,
+		envStorePath+"="+storePath,
+	)
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Cloneflags: nsFlags,
+		Setsid:     detach,
 	}
 
-	// Format non-boolean flags
-	return "--" + flag.Name + "=" + flag.Value.String()
+	if err := cmd.Start(); err != nil {
+		return nil, fmt.Errorf("start container process: %w", err)
+	}
+
+	return cmd.Process, nil
 }

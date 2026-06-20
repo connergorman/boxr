@@ -6,201 +6,150 @@ import (
 	"os"
 	"os/exec"
 	"syscall"
+	"time"
 )
 
-type Container struct {
-	Namespaces NamespaceConfig `json:"namespaces"`
-	Detach     bool            `json:"detach"`
-	Command    string          `json:"command"`
-	Args       []string        `json:"args"`
-	Root       string          `json:"root"`
-}
-
+// NamespaceConfig specifies which Linux namespaces to create for a container.
 type NamespaceConfig struct {
-	PID     bool `json:"pid"`     // Process ID namespace
-	Network bool `json:"network"` // Network namespace
-	Mount   bool `json:"mount"`   // Mount namespace
-	UTS     bool `json:"uts"`     // Unix Timesharing System namespace
-	IPC     bool `json:"ipc"`     // Inter-Process Communication namespace
-	User    bool `json:"user"`    // User namespace
-	Cgroup  bool `json:"cgroup"`  // Control Group namespace
+	PID     bool `json:"pid"`
+	Network bool `json:"network"`
+	Mount   bool `json:"mount"`
+	UTS     bool `json:"uts"`
+	IPC     bool `json:"ipc"`
+	User    bool `json:"user"`
+	Cgroup  bool `json:"cgroup"`
 }
 
-func NewContainer() *Container {
-	return &Container{
-		Namespaces: NamespaceConfig{
-			PID:     true,
-			Network: false,
-			Mount:   true,
-			UTS:     true,
-			IPC:     false,
-			User:    false, // Disabled by default as it requires additional user mapping setup
-			Cgroup:  false,
-		},
-	}
+// Flags converts the config to clone(2) flags.
+func (n NamespaceConfig) Flags() uintptr {
+	var f uintptr
+	if n.PID     { f |= syscall.CLONE_NEWPID    }
+	if n.Network { f |= syscall.CLONE_NEWNET    }
+	if n.Mount   { f |= syscall.CLONE_NEWNS     }
+	if n.UTS     { f |= syscall.CLONE_NEWUTS    }
+	if n.IPC     { f |= syscall.CLONE_NEWIPC    }
+	if n.User    { f |= syscall.CLONE_NEWUSER   }
+	if n.Cgroup  { f |= syscall.CLONE_NEWCGROUP }
+	return f
 }
 
-// Helper method to get clone flags based on namespace configuration
-func (c *Container) GetNamespaceFlags() uintptr {
-	var flags uintptr
-
-	if c.Namespaces.PID {
-		flags |= syscall.CLONE_NEWPID
-	}
-	if c.Namespaces.Network {
-		flags |= syscall.CLONE_NEWNET
-	}
-	if c.Namespaces.Mount {
-		flags |= syscall.CLONE_NEWNS
-	}
-	if c.Namespaces.UTS {
-		flags |= syscall.CLONE_NEWUTS
-	}
-	if c.Namespaces.IPC {
-		flags |= syscall.CLONE_NEWIPC
-	}
-	if c.Namespaces.User {
-		flags |= syscall.CLONE_NEWUSER
-	}
-	if c.Namespaces.Cgroup {
-		flags |= syscall.CLONE_NEWCGROUP
-	}
-
-	return flags
+// DefaultNamespaces returns a baseline isolation set.
+func DefaultNamespaces() NamespaceConfig {
+	return NamespaceConfig{PID: true, Mount: true, UTS: true}
 }
 
-func init() {
-	// Configure structured JSON logger with timestamp and level
-	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	}))
-	slog.SetDefault(logger)
+// --- Sandbox (CRI PodSandbox) ---
+
+type SandboxStatus int32
+
+const (
+	SandboxReady    SandboxStatus = 0
+	SandboxNotReady SandboxStatus = 1
+)
+
+// SandboxConfig is written once at RunPodSandbox and never mutated.
+type SandboxConfig struct {
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Namespace   string            `json:"namespace"`
+	UID         string            `json:"uid"`
+	Labels      map[string]string `json:"labels"`
+	Annotations map[string]string `json:"annotations"`
+	Hostname    string            `json:"hostname"`
+	Namespaces  NamespaceConfig   `json:"namespaces"`
+	CreatedAt   time.Time         `json:"created_at"`
 }
 
-// logNamespaceInfo logs detailed information about the current process namespaces
-func logNamespaceInfo(context string) {
-	pid := os.Getpid()
-
-	// Get namespace inode numbers
-	nsTypes := []struct {
-		name string
-		path string
-	}{
-		{"pid", fmt.Sprintf("/proc/%d/ns/pid", pid)},
-		{"net", fmt.Sprintf("/proc/%d/ns/net", pid)},
-		{"mnt", fmt.Sprintf("/proc/%d/ns/mnt", pid)},
-		{"uts", fmt.Sprintf("/proc/%d/ns/uts", pid)},
-		{"ipc", fmt.Sprintf("/proc/%d/ns/ipc", pid)},
-		{"user", fmt.Sprintf("/proc/%d/ns/user", pid)},
-		{"cgroup", fmt.Sprintf("/proc/%d/ns/cgroup", pid)},
-	}
-
-	nsInfo := make(map[string]string)
-	for _, ns := range nsTypes {
-		if info, err := os.Readlink(ns.path); err == nil {
-			nsInfo[ns.name] = info
-		} else {
-			nsInfo[ns.name] = fmt.Sprintf("error: %v", err)
-		}
-	}
-
-	// Get parent PID
-	ppid := syscall.Getppid()
-
-	// Log namespace information
-	slog.Info("namespace information",
-		"context", context,
-		"pid", pid,
-		"ppid", ppid,
-		"pid_ns", nsInfo["pid"],
-		"net_ns", nsInfo["net"],
-		"mnt_ns", nsInfo["mnt"],
-		"uts_ns", nsInfo["uts"],
-		"ipc_ns", nsInfo["ipc"],
-		"user_ns", nsInfo["user"],
-		"cgroup_ns", nsInfo["cgroup"],
-	)
-
-	// Log process group information
-	pgid, err := syscall.Getpgid(pid)
-	if err == nil {
-		slog.Info("process group information",
-			"pid", pid,
-			"pgid", pgid,
-		)
-	}
-
-	// Log additional process information from /proc
-	if cmdline, err := os.ReadFile(fmt.Sprintf("/proc/%d/cmdline", pid)); err == nil {
-		slog.Info("process cmdline",
-			"pid", pid,
-			"cmdline", string(cmdline),
-		)
-	}
+type SandboxState struct {
+	Status SandboxStatus `json:"status"`
+	PID    int           `json:"pid"`
+	NetNS  string        `json:"net_ns"`
+	IP     string        `json:"ip"`
 }
 
-func (c *Container) Run() error {
+type Sandbox struct {
+	Config SandboxConfig
+	State  SandboxState
+}
 
-	// Log current process information
-	hostPid := os.Getpid()
-	slog.Info("starting container process",
-		"host_pid", hostPid,
-		"command", c.Command,
-		"args", c.Args,
-		"detached", c.Detach,
-		"root", c.Root,
-	)
+// --- Container ---
 
-	// Set up filesystem
-	flags := uintptr(syscall.MS_PRIVATE | syscall.MS_REC)
-	if err := syscall.Mount("none", "/", "", flags, ""); err != nil {
-		return fmt.Errorf("failed to remount root as private: %w", err)
+type ContainerStatus int32
+
+const (
+	ContainerCreated ContainerStatus = 0
+	ContainerRunning ContainerStatus = 1
+	ContainerExited  ContainerStatus = 2
+	ContainerUnknown ContainerStatus = 3
+)
+
+// Config holds the immutable container specification written at CreateContainer.
+// Command+Args follow CRI semantics: Command overrides the image entrypoint,
+// Args override the image cmd.
+type Config struct {
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	SandboxID   string            `json:"sandbox_id"`
+	Image       string            `json:"image"`
+	RootFS      string            `json:"rootfs"`
+	Command     []string          `json:"command"`
+	Args        []string          `json:"args"`
+	Env         []string          `json:"env"`
+	WorkingDir  string            `json:"working_dir"`
+	Labels      map[string]string `json:"labels"`
+	Annotations map[string]string `json:"annotations"`
+	LogPath     string            `json:"log_path"`
+	CreatedAt   time.Time         `json:"created_at"`
+}
+
+// State is rewritten on every status transition.
+type State struct {
+	Status     ContainerStatus `json:"status"`
+	PID        int             `json:"pid"`
+	StartedAt  time.Time       `json:"started_at"`
+	FinishedAt time.Time       `json:"finished_at"`
+	ExitCode   int32           `json:"exit_code"`
+	ExitReason string          `json:"exit_reason"`
+}
+
+// Container is the in-memory view loaded from disk.
+type Container struct {
+	Config Config
+	State  State
+}
+
+// Run sets up the container filesystem and execs into the container process.
+// Called inside the reexec'd child after Linux namespaces have been created.
+// Never returns on success.
+func (cfg *Config) Run() error {
+	slog.Info("container run", "id", cfg.ID, "command", cfg.Command, "args", cfg.Args, "rootfs", cfg.RootFS)
+
+	if err := syscall.Mount("none", "/", "", syscall.MS_PRIVATE|syscall.MS_REC, ""); err != nil {
+		return fmt.Errorf("remount root private: %w", err)
 	}
-
-	slog.Info("attempting chroot", "path", c.Root)
-	if err := syscall.Chroot(c.Root); err != nil {
-		return fmt.Errorf("chroot to %s failed: %w", c.Root, err)
+	if err := syscall.Chroot(cfg.RootFS); err != nil {
+		return fmt.Errorf("chroot %s: %w", cfg.RootFS, err)
 	}
-
 	if err := os.Chdir("/"); err != nil {
-		return fmt.Errorf("chdir to new root failed: %w", err)
+		return fmt.Errorf("chdir /: %w", err)
 	}
-	if err := syscall.Mount("proc", "/proc", "proc", 0x0, ""); err != nil {
-		return fmt.Errorf("failed to mount procfs: %w", err)
+	if err := os.MkdirAll("/proc", 0o555); err != nil {
+		return fmt.Errorf("mkdir /proc: %w", err)
 	}
-	// Log namespace information before container setup
-	logNamespaceInfo("before container setup")
+	if err := syscall.Mount("proc", "/proc", "proc", 0, ""); err != nil {
+		return fmt.Errorf("mount proc: %w", err)
+	}
 
-	// Find the binary path first
-	binary, err := exec.LookPath(c.Command)
+	argv := append(cfg.Command, cfg.Args...)
+	binary, err := exec.LookPath(argv[0])
 	if err != nil {
-		return fmt.Errorf("failed to find command %s: %w", c.Command, err)
+		return fmt.Errorf("look path %s: %w", argv[0], err)
 	}
 
-	// Prepare arguments: first arg should be the command name
-	args := append([]string{c.Command}, c.Args...)
-
-	slog.Info("exec'ing into container process",
-		"command", binary,
-		"args", args,
-	)
-
-	// Replace the current process with the user's command
-	// This syscall will not return if successful
-	if err := syscall.Exec(binary, args, os.Environ()); err != nil {
-		return fmt.Errorf("exec failed: %w", err)
+	env := cfg.Env
+	if len(env) == 0 {
+		env = os.Environ()
 	}
 
-	// This line will never be reached if exec succeeds
-	return nil
-}
-
-func Stop(args []string) error {
-	fmt.Println("Stopping container")
-	return nil
-}
-
-func Kill(args []string) error {
-	fmt.Println("Killing container")
-	return nil
+	return syscall.Exec(binary, argv, env)
 }
