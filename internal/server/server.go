@@ -118,8 +118,18 @@ func (r *RuntimeService) StartContainer(_ context.Context, req *runtimeapi.Start
 		return nil, status.Errorf(codes.Internal, "get sandbox: %v", err)
 	}
 
+	logPath := c.Config.LogPath
+	if logPath == "" {
+		logPath = os.DevNull
+	}
+	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o600)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "open container log %s: %v", logPath, err)
+	}
+	defer logFile.Close()
+
 	startedAt := time.Now()
-	proc, err := reexec.Start(reexec.DefaultStorePath, req.ContainerId, sb.Config.Namespaces.Flags())
+	proc, err := reexec.Start(reexec.DefaultStorePath, req.ContainerId, sb.Config.Namespaces.Flags(), logFile, logFile)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "start container process: %v", err)
 	}
@@ -167,21 +177,11 @@ func (r *RuntimeService) ContainerStatus(_ context.Context, req *runtimeapi.Cont
 		_ = r.store.SaveContainerState(req.ContainerId, &c.State)
 	}
 
-	criState := runtimeapi.ContainerState_CONTAINER_UNKNOWN
-	switch c.State.Status {
-	case container.ContainerCreated:
-		criState = runtimeapi.ContainerState_CONTAINER_CREATED
-	case container.ContainerRunning:
-		criState = runtimeapi.ContainerState_CONTAINER_RUNNING
-	case container.ContainerExited:
-		criState = runtimeapi.ContainerState_CONTAINER_EXITED
-	}
-
 	return &runtimeapi.ContainerStatusResponse{
 		Status: &runtimeapi.ContainerStatus{
 			Id:          c.Config.ID,
 			Metadata:    &runtimeapi.ContainerMetadata{Name: c.Config.Name},
-			State:       criState,
+			State:       criStateOf(c.State.Status),
 			CreatedAt:   c.Config.CreatedAt.UnixNano(),
 			StartedAt:   c.State.StartedAt.UnixNano(),
 			FinishedAt:  c.State.FinishedAt.UnixNano(),
@@ -192,6 +192,55 @@ func (r *RuntimeService) ContainerStatus(_ context.Context, req *runtimeapi.Cont
 			Annotations: c.Config.Annotations,
 		},
 	}, nil
+}
+
+func (r *RuntimeService) ListContainers(_ context.Context, req *runtimeapi.ListContainersRequest) (*runtimeapi.ListContainersResponse, error) {
+	containers, err := r.store.ListContainers()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "list containers: %v", err)
+	}
+
+	filter := req.GetFilter()
+	var out []*runtimeapi.Container
+	for _, c := range containers {
+		criState := criStateOf(c.State.Status)
+		if filter != nil {
+			if filter.Id != "" && filter.Id != c.Config.ID {
+				continue
+			}
+			if filter.PodSandboxId != "" && filter.PodSandboxId != c.Config.SandboxID {
+				continue
+			}
+			if filter.State != nil && filter.State.State != criState {
+				continue
+			}
+		}
+		out = append(out, &runtimeapi.Container{
+			Id:           c.Config.ID,
+			PodSandboxId: c.Config.SandboxID,
+			Metadata:     &runtimeapi.ContainerMetadata{Name: c.Config.Name},
+			Image:        &runtimeapi.ImageSpec{Image: c.Config.Image},
+			ImageRef:     c.Config.Image,
+			State:        criState,
+			CreatedAt:    c.Config.CreatedAt.UnixNano(),
+			Labels:       c.Config.Labels,
+			Annotations:  c.Config.Annotations,
+		})
+	}
+	return &runtimeapi.ListContainersResponse{Containers: out}, nil
+}
+
+func criStateOf(s container.ContainerStatus) runtimeapi.ContainerState {
+	switch s {
+	case container.ContainerCreated:
+		return runtimeapi.ContainerState_CONTAINER_CREATED
+	case container.ContainerRunning:
+		return runtimeapi.ContainerState_CONTAINER_RUNNING
+	case container.ContainerExited:
+		return runtimeapi.ContainerState_CONTAINER_EXITED
+	default:
+		return runtimeapi.ContainerState_CONTAINER_UNKNOWN
+	}
 }
 
 func Serve() {

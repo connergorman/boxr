@@ -61,16 +61,26 @@ func Init() {
 // The child is always placed in a new session (Setsid) so it is detached from
 // the caller's terminal and survives if the caller exits — matching how CRI
 // runtimes work: spawn, record the PID, return immediately.
-func Start(storePath, containerID string, nsFlags uintptr) (*os.Process, error) {
+//
+// stdout and stderr are the destinations for container output; the caller is
+// responsible for opening (and eventually closing) them. stdin is always
+// /dev/null so the container process is fully detached from any terminal.
+func Start(storePath, containerID string, nsFlags uintptr, stdout, stderr *os.File) (*os.Process, error) {
 	self, err := os.Readlink("/proc/self/exe")
 	if err != nil {
 		return nil, fmt.Errorf("readlink /proc/self/exe: %w", err)
 	}
 
+	devNull, err := os.Open(os.DevNull)
+	if err != nil {
+		return nil, fmt.Errorf("open /dev/null: %w", err)
+	}
+	defer devNull.Close()
+
 	cmd := exec.Command(self)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
+	cmd.Stdin = devNull
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
 	cmd.Env = append(os.Environ(),
 		envContainerID+"="+containerID,
 		envStorePath+"="+storePath,

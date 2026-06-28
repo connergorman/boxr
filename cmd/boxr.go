@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -35,11 +36,19 @@ var rootCmd = &cobra.Command{
 }
 
 var root string
+var name string
 
 func init() {
 	runCmd.Flags().StringVarP(&root, "root", "r", "rootfs", "Root filesystem path")
+	runCmd.Flags().StringVarP(&name, "name", "n", "", "Container name (default: random)")
 	runCmd.MarkFlagRequired("root")
-	rootCmd.AddCommand(runCmd, stopCmd, killCmd, serveCmd)
+	rootCmd.AddCommand(runCmd, listCmd, stopCmd, killCmd, serveCmd)
+}
+
+func newID() string {
+	b := make([]byte, 8)
+	rand.Read(b)
+	return fmt.Sprintf("%x", b)
 }
 
 var runCmd = &cobra.Command{
@@ -79,10 +88,15 @@ var runCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		ctrName := name
+		if ctrName == "" {
+			ctrName = newID()
+		}
+
 		ctrResp, err := rt.CreateContainer(ctx, &runtimeapi.CreateContainerRequest{
 			PodSandboxId: sbResp.PodSandboxId,
 			Config: &runtimeapi.ContainerConfig{
-				Metadata: &runtimeapi.ContainerMetadata{Name: "boxr"},
+				Metadata: &runtimeapi.ContainerMetadata{Name: ctrName},
 				Image:    &runtimeapi.ImageSpec{Image: absRoot},
 				Command:  args[:1],
 				Args:     args[1:],
@@ -102,6 +116,47 @@ var runCmd = &cobra.Command{
 
 		fmt.Printf("Container %s started\n", ctrResp.ContainerId)
 	},
+}
+
+var listCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List containers",
+	Run: func(cmd *cobra.Command, args []string) {
+		conn, err := dial()
+		if err != nil {
+			fmt.Printf("Error connecting to server: %v\n", err)
+			os.Exit(1)
+		}
+		defer conn.Close()
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		resp, err := runtimeapi.NewRuntimeServiceClient(conn).ListContainers(ctx, &runtimeapi.ListContainersRequest{})
+		if err != nil {
+			fmt.Printf("Error listing containers: %v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("%-18s  %-16s  %-10s  %s\n", "ID", "NAME", "STATE", "IMAGE")
+		for _, c := range resp.Containers {
+			fmt.Printf("%-18s  %-16s  %-10s  %s\n",
+				c.Id, c.Metadata.GetName(), criStateName(c.State), c.ImageRef)
+		}
+	},
+}
+
+func criStateName(s runtimeapi.ContainerState) string {
+	switch s {
+	case runtimeapi.ContainerState_CONTAINER_CREATED:
+		return "created"
+	case runtimeapi.ContainerState_CONTAINER_RUNNING:
+		return "running"
+	case runtimeapi.ContainerState_CONTAINER_EXITED:
+		return "exited"
+	default:
+		return "unknown"
+	}
 }
 
 var stopCmd = &cobra.Command{
