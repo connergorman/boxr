@@ -1,17 +1,25 @@
 package main
 
 import (
-	"crypto/rand"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/gruejay/container-runtime/internal/server"
-	"github.com/gruejay/container-runtime/pkg/container"
 	"github.com/gruejay/container-runtime/pkg/reexec"
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	runtimeapi "k8s.io/cri-api/pkg/apis/runtime/v1"
 )
+
+const socketAddr = "unix:///tmp/boxr.sock"
+
+func dial() (*grpc.ClientConn, error) {
+	return grpc.NewClient(socketAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+}
 
 func main() {
 	reexec.Init() // exits if this is a reexec'd container child
@@ -26,13 +34,9 @@ var rootCmd = &cobra.Command{
 	Short: "A simple container runtime",
 }
 
-var (
-	detach bool
-	root   string
-)
+var root string
 
 func init() {
-	runCmd.Flags().BoolVarP(&detach, "detach", "d", false, "Run container in background")
 	runCmd.Flags().StringVarP(&root, "root", "r", "rootfs", "Root filesystem path")
 	runCmd.MarkFlagRequired("root")
 	rootCmd.AddCommand(runCmd, stopCmd, killCmd, serveCmd)
@@ -49,41 +53,54 @@ var runCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		store, err := container.NewStore(reexec.DefaultStorePath)
+		conn, err := dial()
 		if err != nil {
-			fmt.Printf("Error opening store: %v\n", err)
+			fmt.Printf("Error connecting to server: %v\n", err)
+			os.Exit(1)
+		}
+		defer conn.Close()
+
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		rt := runtimeapi.NewRuntimeServiceClient(conn)
+
+		sbResp, err := rt.RunPodSandbox(ctx, &runtimeapi.RunPodSandboxRequest{
+			Config: &runtimeapi.PodSandboxConfig{
+				Metadata: &runtimeapi.PodSandboxMetadata{
+					Name:      "boxr",
+					Namespace: "default",
+					Uid:       "boxr",
+				},
+			},
+		})
+		if err != nil {
+			fmt.Printf("Error creating sandbox: %v\n", err)
 			os.Exit(1)
 		}
 
-		id := newID()
-		cfg := &container.Config{
-			ID:        id,
-			Name:      id,
-			RootFS:    absRoot,
-			Command:   args[:1],
-			Args:      args[1:],
-			CreatedAt: time.Now(),
-		}
-		if err := store.CreateContainer(cfg, &container.State{Status: container.ContainerCreated}); err != nil {
+		ctrResp, err := rt.CreateContainer(ctx, &runtimeapi.CreateContainerRequest{
+			PodSandboxId: sbResp.PodSandboxId,
+			Config: &runtimeapi.ContainerConfig{
+				Metadata: &runtimeapi.ContainerMetadata{Name: "boxr"},
+				Image:    &runtimeapi.ImageSpec{Image: absRoot},
+				Command:  args[:1],
+				Args:     args[1:],
+			},
+		})
+		if err != nil {
 			fmt.Printf("Error creating container: %v\n", err)
 			os.Exit(1)
 		}
 
-		nsFlags := container.DefaultNamespaces().Flags()
-		proc, err := reexec.Start(reexec.DefaultStorePath, id, nsFlags, detach)
-		if err != nil {
-			store.DeleteContainer(id)
+		if _, err := rt.StartContainer(ctx, &runtimeapi.StartContainerRequest{
+			ContainerId: ctrResp.ContainerId,
+		}); err != nil {
 			fmt.Printf("Error starting container: %v\n", err)
 			os.Exit(1)
 		}
 
-		if detach {
-			fmt.Printf("Container %s started (PID %d)\n", id, proc.Pid)
-			return
-		}
-
-		proc.Wait()
-		store.DeleteContainer(id)
+		fmt.Printf("Container %s started\n", ctrResp.ContainerId)
 	},
 }
 
@@ -109,10 +126,4 @@ var serveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		server.Serve()
 	},
-}
-
-func newID() string {
-	b := make([]byte, 8)
-	rand.Read(b)
-	return fmt.Sprintf("%x", b)
 }

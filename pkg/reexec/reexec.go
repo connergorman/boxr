@@ -58,9 +58,10 @@ func Init() {
 // the container identified by containerID. The child detects the env var in
 // Init() and calls Run() instead of the normal CLI path.
 //
-// Previously cloneflags were reconstructed from CLI args; they now come
-// directly from the sandbox's persisted NamespaceConfig.Flags().
-func Start(storePath, containerID string, nsFlags uintptr, detach bool) (*os.Process, error) {
+// The child is always placed in a new session (Setsid) so it is detached from
+// the caller's terminal and survives if the caller exits — matching how CRI
+// runtimes work: spawn, record the PID, return immediately.
+func Start(storePath, containerID string, nsFlags uintptr) (*os.Process, error) {
 	self, err := os.Readlink("/proc/self/exe")
 	if err != nil {
 		return nil, fmt.Errorf("readlink /proc/self/exe: %w", err)
@@ -76,7 +77,7 @@ func Start(storePath, containerID string, nsFlags uintptr, detach bool) (*os.Pro
 	)
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Cloneflags: nsFlags,
-		Setsid:     detach,
+		Setsid:     true,
 	}
 
 	if err := cmd.Start(); err != nil {

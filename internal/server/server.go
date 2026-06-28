@@ -119,7 +119,7 @@ func (r *RuntimeService) StartContainer(_ context.Context, req *runtimeapi.Start
 	}
 
 	startedAt := time.Now()
-	proc, err := reexec.Start(reexec.DefaultStorePath, req.ContainerId, sb.Config.Namespaces.Flags(), true)
+	proc, err := reexec.Start(reexec.DefaultStorePath, req.ContainerId, sb.Config.Namespaces.Flags())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "start container process: %v", err)
 	}
